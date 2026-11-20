@@ -1,0 +1,1790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AV Approval and Test Scenario Explorer</title>
+<meta name="description" content="Compare how Ontario, Germany, California, Texas and China approve automated vehicles, then design an Ontario highway test scenario drawn to true length.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f6f9; --card:#ffffff; --text:#111111; --muted:#6a6a6a; --line:#e6e6e6;
+  --accent:#3b7dd8; --accent-soft:#eaf1fc; --black:#14213d;
+  --warn:#9a5200; --warn-soft:#fff3e0; --good:#0b7a4f; --good-soft:#e6f6ee; --err:#c2261f; --err-soft:#fdecea;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 Figtree,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+.topbar{position:sticky;top:0;z-index:20;background:#fff;box-shadow:0 1px 0 var(--line)}
+.bar{display:flex;align-items:center;gap:24px;height:64px}
+.logo{font-weight:800;font-size:22px;color:var(--accent);letter-spacing:-.03em;white-space:nowrap}
+nav.tabs{display:flex;gap:2px;overflow-x:auto;flex:1;scrollbar-width:none}
+nav.tabs::-webkit-scrollbar{display:none}
+nav.tabs button{background:none;border:0;font:inherit;font-weight:500;color:#555;padding:20px 12px;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent}
+nav.tabs button:hover{color:var(--text)}
+nav.tabs button[aria-selected=true]{color:var(--text);font-weight:700;border-bottom-color:var(--accent)}
+main{padding:0 0 64px}
+section[hidden]{display:none}
+.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:28px;align-items:center;padding:44px 0 32px}
+@media (max-width:820px){.hero{grid-template-columns:1fr;padding-top:28px}}
+.kicker{font-weight:700;font-size:14px;color:var(--muted);margin:0 0 10px}
+h1{font-size:clamp(38px,7vw,64px);line-height:1.02;letter-spacing:-.035em;font-weight:800;margin:0 0 18px}
+.lead{font-size:clamp(18px,2.4vw,22px);color:var(--muted);margin:0 0 20px;max-width:30em}
+.lead b{color:var(--text)}
+.meta{display:flex;gap:8px 18px;flex-wrap:wrap;font-weight:600;font-size:14.5px}
+.meta span::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);margin-right:8px;vertical-align:middle}
+.hero-art{width:100%;height:auto;display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 1px 2px rgba(20,33,61,.04)}
+.pad{padding:22px 24px}
+.stack>*+*{margin-top:16px}
+h2{font-size:22px;line-height:1.2;letter-spacing:-.015em;margin:0}
+h3{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 8px;font-weight:700}
+.sub{color:var(--muted);font-size:14.5px;margin:4px 0 0}
+.ph{display:flex;justify-content:space-between;gap:14px;align-items:flex-start}
+.go{flex:none;width:34px;height:34px;border-radius:50%;background:var(--black);color:#fff;border:0;display:grid;place-items:center;cursor:pointer}
+.go svg{transition:transform .2s}
+.go[aria-expanded=true] svg{transform:rotate(90deg)}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{border:1px solid #d6d6d6;background:#fff;color:var(--text);font:inherit;font-weight:600;font-size:14px;padding:7px 14px;border-radius:999px;cursor:pointer}
+.chip:hover{border-color:#999}
+.chip[aria-pressed=true]{background:var(--black);border-color:var(--black);color:#fff}
+.chip.sm{font-size:13px;padding:5px 11px;font-weight:500}
+.pill{display:inline-block;font-size:12.5px;font-weight:700;padding:3px 10px;border-radius:999px;background:#efefef;color:#555;white-space:nowrap}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.good{background:var(--good-soft);color:var(--good)}
+.btn{border:0;background:var(--black);color:#fff;font:inherit;font-weight:700;font-size:14.5px;padding:11px 20px;border-radius:8px;cursor:pointer}
+.btn.alt{background:#fff;color:var(--text);border:1px solid #d0d0d0}
+.btn.red{background:var(--accent)}
+.btn[disabled]{opacity:.4;cursor:not-allowed}
+.btn:focus-visible,.chip:focus-visible,.go:focus-visible,nav.tabs button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible,a:focus-visible{outline:3px solid rgba(59,125,216,.45);outline-offset:2px}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.toolbar{display:flex;gap:14px 20px;flex-wrap:wrap;align-items:center}
+label{display:block;font-size:13px;font-weight:700;margin:12px 0 4px}
+.toolbar label{margin:0 8px 0 0;display:inline}
+input,select{width:100%;font:inherit;color:var(--text);background:#fff;border:1px solid #d0d0d0;border-radius:8px;padding:10px 12px}
+select.inl{width:auto;min-width:180px}
+a.ref{font-size:11px;font-weight:800;vertical-align:super;margin-left:3px;color:var(--accent);text-decoration:none}
+a.ref:hover{text-decoration:underline}
+.grid2{display:grid;gap:16px;grid-template-columns:1fr 1fr}
+.grid3{display:grid;gap:16px;grid-template-columns:repeat(3,1fr)}
+@media (max-width:900px){.grid3{grid-template-columns:1fr}}
+@media (max-width:820px){.grid2{grid-template-columns:1fr}}
+.grid2>.card,.grid3>.card{margin-top:0!important}
+/* values */
+.val{padding:12px 0;border-top:1px solid var(--line)}
+.val:first-child{border-top:0}
+.val .vh{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:2px}
+.val b{font-size:15.5px}
+.val p{margin:2px 0;font-size:14.5px;color:#333}
+.val small{color:var(--muted);font-size:12.5px}
+.tag{font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:6px}
+.tag.fixed{background:#e8f0ff;color:#1d4fb8}.tag.mfr{background:#f3e8ff;color:#6b2bb0}.tag.auth{background:var(--warn-soft);color:var(--warn)}.tag.none{background:#efefef;color:#555}
+.conf{font-size:11px;font-weight:700;color:var(--muted);border:1px solid var(--line);padding:1px 7px;border-radius:6px}
+.conf.unverified{color:var(--warn);border-color:#f0d6ae}
+ol.steps{list-style:none;margin:0;padding:0}
+ol.steps li{border-top:1px solid var(--line)}
+ol.steps li:first-child{border-top:0}
+details>summary{cursor:pointer;list-style:none}
+details>summary::-webkit-details-marker{display:none}
+ol.steps summary{display:flex;gap:12px;align-items:baseline;padding:11px 0}
+ol.steps .n{flex:none;width:24px;height:24px;border-radius:50%;background:var(--black);color:#fff;font-size:12px;font-weight:700;display:grid;place-items:center}
+ol.steps .t{font-weight:600}
+ol.steps .who{color:var(--muted);font-size:13.5px;margin-left:auto;text-align:right}
+ol.steps .body{padding:0 0 12px 36px;font-size:14.5px;color:#333}
+.fold{border-top:1px solid var(--line);padding:12px 0 0;margin-top:16px}
+.fold summary{font-weight:700;font-size:14.5px;display:flex;justify-content:space-between}
+.fold summary::after{content:"+";font-weight:700}
+.fold[open] summary::after{content:"–"}
+.fold ul{margin:10px 0 0;padding-left:18px;font-size:14.5px}
+.cmp{display:grid;grid-template-columns:150px 1fr 1fr;gap:6px 18px;padding:12px 0;border-top:1px solid var(--line);font-size:14.5px}
+.cmp:first-of-type{border-top:0}
+.cmp small{display:none;color:var(--muted);font-weight:700}
+@media (max-width:760px){.cmp{grid-template-columns:1fr}.cmp small{display:block}}
+.kv{display:flex;justify-content:space-between;gap:14px;padding:7px 0;border-top:1px solid var(--line);font-size:14.5px}
+.kv:first-of-type{border-top:0}
+.kv .k{color:var(--muted)}.kv .v{font-weight:700;text-align:right}
+.kv.calc .v{color:var(--accent)}
+.kv.flag .v{color:var(--warn)}
+.kv small{display:block;font-weight:400;color:var(--muted);font-size:12.5px}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tags span{font-size:13px;background:#f0f0f0;padding:4px 10px;border-radius:8px}
+.grp{margin-top:16px}
+.warnbox{margin-top:16px;background:var(--warn-soft);color:var(--warn);border-radius:8px;padding:10px 12px;font-size:13.5px}
+.warnbox ul{margin:4px 0 0;padding-left:18px}
+.more[hidden]{display:none}
+/* calculators */
+.calcs{display:grid;gap:16px;grid-template-columns:repeat(3,1fr)}
+@media (max-width:900px){.calcs{grid-template-columns:1fr}}
+.out{margin-top:14px;padding:12px 14px;border-radius:8px;background:#f2f2f2;font-size:15px}
+.out b{font-size:20px}
+.err{margin-top:12px;padding:10px 12px;border-radius:8px;background:var(--err-soft);color:var(--err);font-size:14px;font-weight:600}
+.hint{font-size:12.5px;color:var(--muted);margin-top:6px}
+.use{font-weight:600;font-size:14.5px;margin:6px 0 0}
+/* refs */
+ol.refs{padding:0;list-style:none;margin:0}
+ol.refs li{padding:12px 0;border-top:1px solid var(--line);display:flex;gap:12px}
+ol.refs li:first-child{border-top:0}
+ol.refs .id{flex:none;min-width:38px;height:28px;border-radius:8px;background:var(--black);color:#fff;font-weight:700;font-size:13px;display:grid;place-items:center;padding:0 6px}
+ol.refs li.hl{background:var(--accent-soft);border-radius:10px;padding-left:10px}
+ol.refs small{display:block;color:var(--muted)}
+ul.tight{margin:6px 0 0;padding-left:18px}ul.tight li{margin:5px 0}
+footer{border-top:1px solid var(--line);padding:22px 0 40px;color:var(--muted);font-size:13.5px;background:#fff}
+.pagehead{padding:34px 0 18px}.pagehead h1{font-size:clamp(32px,5.5vw,52px);margin:0 0 10px}.pagehead .lead{margin:0}
+.figwrap{overflow-x:auto;border-radius:12px;border:1px solid var(--line);background:#fff;margin-top:12px}
+.figwrap svg{display:block}
+.ftitle{margin:16px 0 2px;font-size:22px;font-weight:800;color:var(--black);letter-spacing:-.015em}
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px;color:var(--muted);margin-top:10px}
+.legend i{display:inline-block;width:16px;height:10px;border-radius:3px;border:1px solid #1b1b1b;margin-right:6px;vertical-align:-1px}
+.stepcards{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));margin-top:16px}
+.sc{background:#fff;border:1px solid var(--line);border-top:4px solid var(--c);border-radius:12px;padding:14px 16px;font-size:14px}
+.sc h4{margin:0 0 6px;font-size:15.5px;color:var(--c)}
+.sc p{margin:5px 0;color:#2b2f36}
+.designer{grid-template-columns:minmax(0,5fr) minmax(0,6fr);align-items:start;margin-top:16px}
+@media (max-width:900px){.designer{grid-template-columns:1fr}}
+.steprow{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-top:8px;background:#fafbfc}
+.steprow .sn{flex:none;width:26px;height:26px;border-radius:50%;color:#fff;font-weight:800;font-size:13px;display:grid;place-items:center;margin-top:2px}
+.steprow .sbody{flex:1;min-width:0}.steprow .sbody small{display:block;color:var(--muted);font-size:13px}
+.steprow label{margin-top:8px}
+.mini{display:flex;gap:2px;align-items:center}
+.xbtn{background:none;border:0;color:var(--muted);font:inherit;font-weight:700;cursor:pointer;padding:4px 7px}
+.xbtn:hover{color:var(--err)}
+.xbtn[disabled]{opacity:.3;cursor:not-allowed}
+.btn[disabled]{opacity:.4;cursor:not-allowed}
+.chk{display:flex;gap:10px;align-items:center;font-weight:600;margin-top:14px}.chk input{width:auto}
+.err.sm{margin-top:6px;padding:6px 10px;font-size:13px}
+.opt{font-size:11px;font-weight:600;text-transform:none;letter-spacing:0;color:var(--muted)}
+.skchips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.sk{font-size:13.5px;font-weight:600;padding:5px 12px;border-radius:999px;background:#eef0f3;color:#6a6a6a}
+.sk.on{background:var(--good-soft);color:var(--good)}
+.figtools{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.palgrp{margin-top:10px}.palh{font-size:11.5px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px}
+.palrow{display:flex;flex-wrap:wrap;gap:8px}
+.pal{font:inherit;font-size:13.5px;font-weight:600;border:1px solid var(--c);color:var(--c);background:#fff;border-radius:8px;padding:7px 12px;cursor:grab;user-select:none}
+.pal:hover{background:var(--c);color:#fff}
+.dzbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:14px 0 0}.dzbar select{width:auto;max-width:100%}
+.btn[aria-pressed=true]{background:#2e9e4f}
+#dz-wrap{touch-action:pan-x pan-y}#dz-wrap.drawing{outline:3px solid #2e9e4f55}
+.dzglob{display:grid;gap:4px 16px;grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+.inspt{font-weight:800;font-size:17px;margin-bottom:2px}.inspg{display:grid;gap:2px 16px;grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+.numtab{margin-top:8px}.numrow{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,3fr);gap:2px 14px;padding:9px 0;border-top:1px solid var(--line)}
+.numrow .nk{font-weight:700}.numrow .nv{font-weight:800;text-align:right;color:var(--black)}.numrow .nn{grid-column:1/-1;color:var(--muted);font-size:13px}
+.warnbox{margin-top:14px;padding:10px 14px;border-radius:10px;background:#fff6e5;border:1px solid #f0c36d;font-size:14px}
+ul.small{font-size:14px}
+#dz-ai-out{margin-top:12px}
+details.pr summary{cursor:pointer;font-weight:600;margin-top:10px}details.pr pre{white-space:pre-wrap;font-size:12.5px;background:#f2f4f7;border-radius:8px;padding:10px;max-height:260px;overflow:auto}
+@media print{.topbar,.actions,.chips,.hero,.figtools,#ed,#b-presets{display:none!important}.designer{grid-template-columns:1fr}body{background:#fff}section[hidden]{display:block}}
+
+/* ---- dark mission-control theme ---- */
+:root{--bg:#0B1020;--card:#161C2E;--text:#E5E7EB;--muted:#94A3B8;--line:#26304a;--accent:#22D3EE;--accent-soft:#0e2a3a;--black:#22D3EE;--warn:#FBBF24;--warn-soft:rgba(251,191,36,.12);--good:#34D399;--good-soft:rgba(52,211,153,.13);--err:#F87171;--err-soft:rgba(248,113,113,.13);--mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+body{background-color:var(--bg);background-image:radial-gradient(rgba(148,163,184,.16) 1px,transparent 1px);background-size:22px 22px;background-attachment:fixed}
+.topbar{background:rgba(11,16,32,.88);backdrop-filter:blur(8px);box-shadow:0 1px 0 var(--line)}
+nav.tabs button{color:var(--muted)}
+.card{box-shadow:none}.card:hover{border-color:#33415f}
+h1{font-weight:700}.lead b{color:var(--text)}
+h3,.kicker,.palh,label,.hint,.legend,.numrow .nv,.inspt,.nk{font-family:var(--mono)}
+h3,.palh,.kicker{letter-spacing:.12em}
+label{font-weight:600;font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.hint,.legend{font-size:12px}
+.numrow .nv{color:var(--accent);font-weight:600}.numrow .nk{font-weight:600}
+.chip,.btn.alt{background:#1c2438;border-color:#2a3550;color:var(--text)}
+.chip:hover,.btn.alt:hover{border-color:var(--accent)}
+.chip[aria-pressed=true],.btn,.go,ol.steps .n{color:#0B1020}
+.btn[aria-pressed=true]{background:#34D399;color:#0B1020}
+.btn.alt{color:var(--text)}
+input,select{background:#0f1526;border-color:#2a3550;color:var(--text)}
+input::placeholder{color:#5b6985}
+.pill,.sk,.conf{background:#232c44;color:var(--muted);border-color:#2a3550}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}.pill.good,.sk.on{background:var(--good-soft);color:var(--good)}
+.tag.fixed{background:rgba(34,211,238,.14);color:#67e8f9}.tag.mfr{background:rgba(167,139,250,.16);color:#c4b5fd}.tag.auth{background:var(--warn-soft);color:var(--warn)}.tag.none{background:#232c44;color:var(--muted)}
+.val p,ol.steps .body,.sc p,.fold li{color:#cbd5e1}
+.out{background:#0f1526;border:1px solid var(--line)}
+.steprow,.sc{background:#121a2e}
+.warnbox{background:rgba(251,191,36,.1);border-color:rgba(251,191,36,.45);color:var(--text)}
+details.pr pre{background:#0f1526;color:#cbd5e1}
+.figwrap{border-color:#33415f}
+a.ref{color:#67e8f9}
+.pal{display:inline-flex;align-items:center;gap:8px;background:#121a2e;color:var(--c);border:1px solid #2a3550;border-radius:12px;padding:6px 12px 6px 8px;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none}
+.pal svg{flex:none;background:#0B1020;border-radius:6px;padding:2px;color:var(--c)}
+.pal span{color:var(--text);font-size:13.5px;font-weight:600}
+.pal:hover{border-color:var(--c);background:#1c2438}
+.pal.ghost{position:fixed;z-index:99;pointer-events:none;opacity:.92;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+footer{background:transparent;color:var(--muted);border-top:1px solid var(--line);font-family:var(--mono);font-size:12px}
+#dz-wrap.over{outline:3px dashed #22D3EE}
+.fb{margin-top:6px;padding:7px 10px;border-radius:8px;font-size:12.5px;line-height:1.4;border:1px solid var(--line)}
+.fb.ok{background:var(--good-soft);color:var(--good);border-color:transparent}.fb.warn{background:var(--warn-soft);color:var(--warn);border-color:transparent}.fb.info{background:#1c2438;color:#cbd5e1}
+.critrow{padding:9px 0;border-top:1px solid var(--line)}.critrow .nk{font-weight:600}.critrow .nv{color:var(--accent);font-weight:600}
+.cin{display:flex;gap:8px;align-items:center;margin-top:6px;font-size:13px;color:var(--muted)}.cin input{max-width:120px;padding:6px 10px}
+body.dz-dragging{cursor:grabbing;user-select:none}
+[data-pid],[data-wp]{touch-action:none}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+
+</style>
+</head>
+<body>
+<header class="topbar"><div class="wrap bar">
+  <span class="logo">AV scenario explorer</span>
+  <nav class="tabs" aria-label="Sections">
+    <button role="tab" aria-selected="true" data-tab="countries">Countries</button>
+    <button role="tab" aria-selected="false" data-tab="builder">Example scenarios</button>
+    <button role="tab" aria-selected="false" data-tab="designer">Scenario designer</button>
+    <button role="tab" aria-selected="false" data-tab="calc">Calculators</button>
+    <button role="tab" aria-selected="false" data-tab="refs">References</button>
+  </nav>
+</div></header>
+
+<main><div class="wrap">
+
+<!-- COUNTRIES -->
+<section id="tab-countries">
+  <div class="hero">
+    <div>
+      <h1>AV approval by country.</h1>
+      <p class="lead">Compare how each country approves AV applications.</p>
+    </div>
+    <svg class="hero-art" viewBox="0 0 560 330" role="img" aria-label="Illustration of a highway with an acceleration lane, three mainline lanes and an exit lane">
+      <defs><marker id="ah" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#2e9e4f"/></marker></defs>
+      <rect x="0" y="120" width="560" height="120" fill="#26262a"/>
+      <polygon points="0,240 0,290 230,290 305,240" fill="#34343a"/>
+      <polygon points="360,240 410,294 560,294 560,240" fill="#34343a"/>
+      <line x1="0" y1="160" x2="560" y2="160" stroke="#fff" stroke-width="2.5" stroke-dasharray="18 14" opacity=".75"/>
+      <line x1="0" y1="200" x2="560" y2="200" stroke="#fff" stroke-width="2.5" stroke-dasharray="18 14" opacity=".75"/>
+      <path d="M150 266 C 215 266, 250 226, 318 182" fill="none" stroke="#2e9e4f" stroke-width="3" stroke-dasharray="7 7" marker-end="url(#ah)"/>
+      <g transform="translate(70,250)"><rect width="74" height="32" rx="10" fill="#2e9e4f"/><rect x="44" y="4" width="14" height="24" rx="4" fill="#111" opacity=".65"/><rect x="12" y="5" width="12" height="22" rx="3" fill="#111" opacity=".4"/><rect x="68" y="6" width="5" height="6" rx="2" fill="#ffe28a"/><rect x="68" y="20" width="5" height="6" rx="2" fill="#ffe28a"/></g>
+      <g transform="translate(380,128)"><rect width="70" height="30" rx="9" fill="#fff"/><rect x="42" y="4" width="13" height="22" rx="4" fill="#111" opacity=".5"/><rect x="11" y="5" width="11" height="20" rx="3" fill="#111" opacity=".3"/></g>
+      <g transform="translate(180,168)"><rect width="70" height="30" rx="9" fill="#bdbdc4"/><rect x="42" y="4" width="13" height="22" rx="4" fill="#111" opacity=".5"/><rect x="11" y="5" width="11" height="20" rx="3" fill="#111" opacity=".3"/></g>
+      <text x="108" y="316" text-anchor="middle" font-family="Figtree,system-ui,sans-serif" font-weight="800" font-size="14" fill="#6a6a6a">Merge</text>
+      <text x="250" y="108" text-anchor="middle" font-family="Figtree,system-ui,sans-serif" font-weight="800" font-size="14" fill="#6a6a6a">Lane change</text>
+      <text x="490" y="318" text-anchor="middle" font-family="Figtree,system-ui,sans-serif" font-weight="800" font-size="14" fill="#6a6a6a">Exit</text>
+    </svg>
+  </div>
+  <div class="card pad"><div class="chips" id="cty-chips" role="group" aria-label="Country"></div></div>
+  <div id="cty-out" style="margin-top:16px"></div>
+  <div class="card pad" style="margin-top:16px" id="cty-cmp">
+    <div class="toolbar"><h2>Compare</h2><span id="cmp-a" class="pill"></span><label for="cty-b">with</label><select id="cty-b" class="inl"></select></div>
+    <div id="cmp-body" style="margin-top:10px"></div>
+  </div>
+</section>
+
+<!-- DESIGNER -->
+<section id="tab-builder" hidden>
+  <div class="pagehead"><h1>Example scenarios.</h1>
+  <p class="lead">The six planned tests. Load one or change the steps. Distances along the road are drawn to true length.</p></div>
+  <div class="card pad" id="fig-card">
+    <div class="chips" id="b-presets" role="group" aria-label="Load a test"></div>
+    <h2 class="ftitle" id="fig-title"></h2>
+    <p class="sub" id="fig-sub" style="margin:0"></p>
+    <div class="figwrap" id="fig-wrap"></div>
+    <p class="hint" id="fig-note"></p>
+    <div class="legend"><span><i style="background:#2e9e4f"></i>AV</span><span><i style="background:#e8892b"></i>Other vehicle</span><span><i style="background:#f7f7f7"></i>Truck or slow vehicle (blue cab)</span><span><i style="background:#f7f7f7;border-color:#d62828"></i>Emergency vehicle</span><span><i style="background:#f08a24"></i>Closed lane</span><span><i style="background:none;border:0;border-top:2px dashed #0b6b2c;border-radius:0;height:0;vertical-align:3px"></i>AV path</span></div>
+    <div class="figtools"><button class="btn" id="b-png" type="button">Download diagram (PNG)</button><button class="btn alt" id="b-csv" type="button">Download run sheet (CSV)</button><button class="btn alt" id="b-print" type="button">Print</button></div>
+  </div>
+  <div class="stepcards" id="step-cards"></div>
+  <div class="grid2 designer">
+    <div class="card pad" id="ed"></div>
+    <div class="card pad" id="res"></div>
+  </div>
+  <div class="card pad" style="margin-top:16px">
+    <h2>Run plan</h2>
+    <p class="sub">Each repeat of a test uses a different random seed for traffic gaps and other vehicles. Confirm the repeat count with Dr. Kim: Charlebois used 3 to 7 trials per condition (R16) and Germany's Annex 1 asks for at least 3 parameter sets per hazardous scenario (R10).</p>
+    <label for="f-reps">Repeats per test</label><input id="f-reps" data-k="reps" type="text" inputmode="numeric" value="3" placeholder="3" style="max-width:140px">
+    <div class="err sm" id="e-f-reps" role="alert" hidden></div>
+    <div class="out" id="run-out"></div>
+  </div>
+</section>
+
+<!-- DESIGNER -->
+<section id="tab-designer" hidden>
+  <div class="pagehead"><h1>Scenario designer.</h1>
+  <p class="lead">Build your own scenario. Drag items onto the road, draw the path the AV will take, and read the numbers and skills it tests. Distances are drawn to true length.</p></div>
+  <div class="card pad">
+    <h2>1. Road and speeds</h2>
+    <div class="dzglob" id="dz-glob"></div>
+    <div class="dzbar"><select id="dz-ex" aria-label="Start point"></select></div>
+  </div>
+  <div class="card pad" style="margin-top:16px">
+    <h2>2. Drag items onto the road</h2>
+    <p class="sub">On a phone or tablet, tap an item to add it, then edit its start below.</p>
+    <div id="dz-pal"></div>
+    <div class="dzbar"><button class="btn" id="dz-draw" type="button" aria-pressed="false">Draw AV path</button><button class="btn alt" id="dz-undo" type="button">Undo last point</button><button class="btn alt" id="dz-png" type="button">Download diagram (PNG)</button><button class="btn alt" id="dz-clrpath" type="button">Clear path</button><button class="btn alt" id="dz-clr" type="button">Reset all and start new</button></div>
+    <p class="hint">Draw AV path: press and drag across the road from left to right. The path snaps to lanes and a lane change appears where you cross a lane line. A single click adds one point. Drag a green point to move it; double-click it to remove it. Delete removes the selected item.</p>
+    <div class="figwrap" id="dz-wrap"></div>
+    <div class="legend"><span><i style="background:#2e9e4f"></i>AV</span><span><i style="background:#e8892b"></i>Other vehicle</span><span><i style="background:#f08a24"></i>Closed lane</span><span><i style="background:none;border:0;border-top:2px dashed #0b6b2c;border-radius:0;height:0;vertical-align:3px"></i>AV path</span></div>
+    <p class="hint">Lateral scale is exaggerated so lanes can be seen. Vehicles and lane dashes are symbols, not to scale.</p>
+    <div id="dz-sk" style="margin-top:14px"></div>
+  </div>
+  <div class="grid2 designer">
+    <div class="card pad"><h2>3. Edit the selected item</h2><div id="dz-insp"></div></div>
+    <div class="card pad" id="dz-res"></div>
+  </div>
+  <div class="card pad" style="margin-top:16px">
+    <h2>4. Describe it with Gemini</h2>
+    <p class="sub">Gemini writes a short description and the skills tested, from the facts in section 3 only. Paste your own API key. It stays in this tab, is never saved, and is sent only to Google. Anyone using this link needs their own key.</p>
+    <div class="grid2" style="margin-top:6px"><div><label for="dz-key">Gemini API key</label><input id="dz-key" type="password" autocomplete="off" spellcheck="false" placeholder="Paste key"></div><div><label for="dz-model">Model name</label><input id="dz-model" type="text" value="gemini-2.5-flash"></div></div>
+    <div class="figtools"><button class="btn" id="dz-ai" type="button">Describe this scenario</button></div>
+    <div id="dz-ai-out" hidden></div>
+    <details class="pr"><summary>Show exactly what is sent to Gemini</summary><pre id="dz-prompt"></pre></details>
+  </div>
+</section>
+
+<!-- CALCULATORS -->
+<section id="tab-calc" hidden>
+  <div class="pagehead"><h1>Quick checks.</h1><p class="lead">Three small calculators for planning a test run. Each one can be checked by hand.</p></div>
+  <div class="calcs">
+    <div class="card pad" id="c1">
+      <h2>Time gap ↔ distance</h2>
+      <p class="use">Use it to turn a time gap into metres you can mark on the track.</p>
+      <label for="c1-v">Speed (km/h)</label><input id="c1-v" type="number" inputmode="decimal" step="any" placeholder="e.g. 110">
+      <label for="c1-m">Convert</label>
+      <select id="c1-m"><option value="t2d">Seconds to metres</option><option value="d2t">Metres to seconds</option></select>
+      <label for="c1-x" id="c1-xl">Time gap (s)</label><input id="c1-x" type="number" inputmode="decimal" step="any" placeholder="e.g. 2">
+      <div class="actions"><button class="btn" id="c1-go" type="button">Calculate</button><button class="btn alt" id="c1-ex" type="button">Example</button></div>
+      <div class="err" id="c1-err" role="alert" hidden></div><div class="out" id="c1-out" hidden></div>
+    </div>
+    <div class="card pad" id="c2">
+      <h2>Measured gap vs reference</h2>
+      <p class="use">Compare a run's gap with the mean gap from the PoliTO study. It is not a pass limit.</p>
+      <label for="c2-g">Reference gap</label><select id="c2-g"></select>
+      <label for="c2-v">Speed (km/h)</label><input id="c2-v" type="number" inputmode="decimal" step="any" placeholder="e.g. 110">
+      <label for="c2-x">Measured gap (<span id="c2-u">s</span>)</label><input id="c2-x" type="number" inputmode="decimal" step="any" placeholder="e.g. 3">
+      <div class="actions"><button class="btn" id="c2-go" type="button">Compare</button><button class="btn alt" id="c2-ex" type="button">Example</button></div>
+      <div class="err" id="c2-err" role="alert" hidden></div><div class="out" id="c2-out" hidden></div>
+    </div>
+    <div class="card pad" id="c3">
+      <h2>Speed change on a lane</h2>
+      <p class="use">Use it to check how hard a vehicle must speed up or slow down over the lane length.</p>
+      <label for="c3-t">Lane</label>
+      <select id="c3-t"><option value="435">Merge: short acceleration lane (435 m)</option><option value="500">Merge: standard acceleration lane (500 m)</option><option value="345">Exit: deceleration lane (345 m)</option></select>
+      <label for="c3-a">Speed at start (km/h)</label><input id="c3-a" type="number" inputmode="decimal" step="any" placeholder="e.g. 80">
+      <label for="c3-b">Speed at end (km/h)</label><input id="c3-b" type="number" inputmode="decimal" step="any" placeholder="e.g. 110">
+      <label for="c3-l">Usable length (m)</label><input id="c3-l" type="number" inputmode="decimal" step="any">
+      <div class="actions"><button class="btn" id="c3-go" type="button">Calculate</button><button class="btn alt" id="c3-ex" type="button">Example</button></div>
+      <div class="err" id="c3-err" role="alert" hidden></div><div class="out" id="c3-out" hidden></div>
+    </div>
+  </div>
+</section>
+
+<!-- REFERENCES -->
+<section id="tab-refs" hidden>
+  <div class="pagehead"><h1>References and notes.</h1></div>
+  <div class="card pad"><h2>Ontario scenario</h2><ol class="refs" id="ref-ont" style="margin-top:10px"></ol></div>
+  <div class="card pad" style="margin-top:16px"><h2>Country comparison</h2><ol class="refs" id="ref-cty" style="margin-top:10px"></ol></div>
+  <div class="grid2" style="margin-top:16px">
+    <div class="card pad"><h2>How the numbers are worked out</h2>
+      <ul class="tight"><li>Gap in metres = speed (km/h) ÷ 3.6 × time (s).</li><li>Average acceleration = (v₂² − v₁²) ÷ (2 × L), speeds in m/s, constant over the whole lane.</li><li>Sideways acceleration on a curve = v² ÷ R. Friction needed = sideways acceleration ÷ 9.81.</li><li>Stopping distance = v × t + v² ÷ (2a).</li><li>Work-zone taper = W × S ÷ 1.6. The units of this formula are still to be confirmed.</li></ul></div>
+    <div class="card pad"><h2>Limits</h2>
+      <ul class="tight"><li>Not legal or safety advice, and not an official requirement of any authority.</li><li>Country data was compiled up to 9 November 2026. Some items rest on summaries or are unverified, and are labelled.</li><li>Pass or fail limits are not set. Nothing without a source is invented; such items are marked as to be set.</li><li>Merge and lane-change gap means come from a PoliTO dissertation, not Ontario data.</li><li>Spacing between scenario steps is a proposal.</li><li>Not scientifically validated.</li></ul></div>
+  </div>
+  <div class="card pad" style="margin-top:16px"><h2>Author and AI acknowledgement</h2>
+    <p class="sub" style="margin:6px 0 0">Built by Mahin Alam, PhD student in Civil Engineering, University of Windsor. The code and layout were written with help from Claude (Anthropic). The author checked the results by hand calculation and browser tests.</p></div>
+</section>
+
+</div></main>
+<footer><div class="wrap">Mahin Alam · University of Windsor · Built with help from an AI assistant (Claude).</div></footer>
+<script>
+/* ============ COUNTRY DATA (from the author's research document) ============ */
+var TAGS = {fixed:"Fixed by law", mfr:"Manufacturer-defined", auth:"Authority-judged", none:"Not required"};
+
+var DATA = {
+de: {
+ name:"Germany",
+ head:"National operating permit (Betriebserlaubnis) from the KBA",
+ summary:"Germany regulates Level 4 through StVG sections 1d to 1l and the AFGBV ordinance. The maker needs a national operating permit from the KBA. The keeper (operator) then needs an operating-area approval from the state and registers the vehicle. Annex 1 fixes many pass values.",
+ est:"About 32 months (planning estimate, not a legal deadline)",
+ steps:[
+ {t:"Base vehicle approval",who:"Manufacturer, KBA",what:"The base vehicle already has an EU type approval or individual approval, and the automated-function changes are described.",time:"Depends on the vehicle",basis:"AFGBV sec. 16(3)",conf:"primary"},
+ {t:"Fix the operating domain and human baseline; hold a KBA pre-talk",who:"Manufacturer, KBA (advice only)",what:"Agree in writing the baseline for 'safer than a human driver', the metrics and the evidence types.",time:"About months 0 to 3 (estimate)",basis:"Good practice",conf:"unverified"},
+ {t:"Test permit (Erprobungsgenehmigung)",who:"Keeper applies, KBA grants",what:"Allows public-road testing with a technical supervisor on site. Needs a development concept, competent people and data supply.",time:"Valid 4 years, extended 2 years at a time",basis:"StVG sec. 1i; AFGBV sec. 16",conf:"primary"},
+ {t:"Safety case, scenario catalogue and simulation validation",who:"Manufacturer; technical service checks",what:"Hazard analysis, scenario catalogue with coverage justification, simulation validated against real tests, at least 3 parameter sets per hazardous scenario.",time:"About months 1 to 12 (estimate)",basis:"AFGBV Annex 1 nos. 7.2, 10 to 12",conf:"primary"},
+ {t:"Run the fixed Annex 1 tests, then the full catalogue; collect road exposure",who:"Manufacturer; technical service witnesses",what:"Fixed numeric tests first (3 s TTC, 2.4 m/s2, cut-in table, UN R152 and R79 criteria). Road exposure under the test permit supports the statistical proof.",time:"About months 8 to 30 (estimate)",basis:"Annex 1 Part 2",conf:"primary"},
+ {t:"IT security and data protection reviews",who:"BSI and data protection authority, via KBA",what:"IT security concept (UN R155 as modified, GDPR Arts. 24, 25, 32, DPIA Art. 35) and data storage design.",time:"About months 12 to 18 (estimate)",basis:"AFGBV sec. 3(5)",conf:"primary"},
+ {t:"Independent safety-case review",who:"Skylab-independent reviewer",what:"Review for gaps before filing. Draft UN GTR practice; sensible for the AFGBV.",time:"About months 18 to 22 (estimate)",basis:"Draft UN GTR",conf:"secondary"},
+ {t:"Betriebserlaubnis application and review",who:"Manufacturer applies, KBA decides",what:"Full document stack, a test vehicle supplied free of charge, KBA may appoint a technical service. KBA may add conditions later.",time:"About months 22 to 28 (estimate; no review time found)",basis:"AFGBV secs. 2 to 4",conf:"primary"},
+ {t:"Operating-area approval",who:"Keeper applies; state authority (Autobahn GmbH on federal motorways)",what:"Digital map, purpose and conditions, proof that deactivation and manoeuvre release work, staff checks. Authority runs an approval test.",time:"About months 28 to 32 (estimate)",basis:"AFGBV secs. 7 to 9",conf:"primary"},
+ {t:"Passenger-service licence (if carrying passengers)",who:"State authority",what:"PBefG licence. Runs in parallel with the area approval.",time:"Parallel",basis:"PBefG",conf:"secondary"},
+ {t:"Registration",who:"Registration authority",what:"Needs the valid operating permit, the area approval and compulsory liability insurance. The area limit goes in the registration certificate.",time:"Short",basis:"AFGBV sec. 11",conf:"primary"},
+ {t:"Operate",who:"Keeper",what:"Daily extended check, full inspection every 90 days, periodic inspection, qualified technical supervisor, data storage and deletion rules.",time:"Ongoing",basis:"AFGBV secs. 13, 14; StVG sec. 1g",conf:"primary"}
+ ],
+ values:[
+ {item:"Right-of-way time to collision (TTC)",rule:"TTC above 3 s for the vehicle with right of way. Priority or oncoming traffic must not fall below 3 s to the conflict point when turning or crossing.",tag:"fixed",src:"Annex 1 nos. 1.3, 10.2.7",conf:"primary"},
+ {item:"Acceleration with standing or unbelted passengers",rule:"At most 2.4 m/s2 on level ground. A higher value needs a verifiable risk reason.",tag:"fixed",src:"Annex 1 no. 1",conf:"primary"},
+ {item:"Cut-in minimum TTC (10 to 60 km/h relative speed)",rule:"Other vehicles: 0.48, 0.71, 0.94, 1.18, 1.41, 1.64 s. Standing or unbelted: 0.74, 1.32, 1.90, 2.47, 3.05, 3.63 s. Applies if the intruder was visible at least 0.72 s before entering (more than 30 cm over the lane edge).",tag:"fixed",src:"Annex 1 no. 10.2.5 (formula is my reconstruction)",conf:"primary"},
+ {item:"Braking assumed for other road users",rule:"Others are assumed to brake up to 10 m/s2.",tag:"fixed",src:"AFGBV sec. 3(8)",conf:"primary"},
+ {item:"Collision avoidance (UN R152 based)",rule:"Zero relative collision speed over the whole speed range. Pedestrians up to 7 km/h lateral, cyclists up to 25 km/h.",tag:"fixed",src:"Annex 1 no. 10.2.1",conf:"primary"},
+ {item:"Own lane change and turning",rule:"Pass criteria from UN R79 (clauses cited in Annex 1). Approach speed may be the area speed limit.",tag:"fixed",src:"Annex 1 nos. 10.2.6, 10.2.7",conf:"primary"},
+ {item:"Simulation parameter sets",rule:"At least 3 per hazardous scenario. Tools validated against real tests with no significant difference.",tag:"fixed",src:"Annex 1 no. 11",conf:"primary"},
+ {item:"Values inside each parameter set and simulation error limit",rule:"You choose the values and the acceptance limit, before comparing real and simulated runs.",tag:"mfr",src:"Annex 1 no. 11",conf:"primary"},
+ {item:"Safer than a human driver",rule:"The principle is stated. No number is given. You propose the metric, baseline and margin; the KBA decides if it is enough.",tag:"auth",src:"Annex 1 no. 10",conf:"primary"},
+ {item:"Emergency driving function",rule:"Walking speed only, hazard lights on. A vehicle without conventional controls leaves the minimum risk state only when the supervisor starts it.",tag:"fixed",src:"Annex 1 nos. 2, 3",conf:"primary"},
+ {item:"Remote control",rule:"Up to walking speed, a remote control within 6 m is enough. Above that a driver's seat is needed.",tag:"fixed",src:"Annex 1 no. 4",conf:"primary"},
+ {item:"Minimum on-road distance",rule:"No distance threshold. Coverage is argued with statistics.",tag:"none",src:"Annex 1 no. 7.2",conf:"primary"},
+ {item:"Weather and visibility limit",rule:"No numeric limit. You declare your domain edge and show evidence for it.",tag:"mfr",src:"Annex 1 nos. 1.4, 12",conf:"primary"},
+ {item:"Test permit length",rule:"Normally 4 years, extended 2 years at a time.",tag:"fixed",src:"AFGBV sec. 16(2)",conf:"primary"},
+ {item:"Keeper checks",rule:"Daily extended check; full inspection every 90 days; reports kept 6 months; first periodic inspection due 6 months after registration (one source says every six months, so confirm).",tag:"fixed",src:"AFGBV sec. 13",conf:"primary"},
+ {item:"Technical supervisor",rule:"Engineering or technician qualification, manufacturer training, matching licence, at most 3 penalty points.",tag:"fixed",src:"AFGBV sec. 14",conf:"primary"},
+ {item:"Event data",rule:"13 data categories on defined triggers. Authorities delete data at the latest 3 years after operation ends.",tag:"fixed",src:"StVG sec. 1g; Annex 2",conf:"primary"},
+ {item:"Liability caps",rule:"EUR 10 million for death or injury and EUR 2 million for property damage per event. Compulsory liability insurance for registration.",tag:"fixed",src:"StVG sec. 12",conf:"primary"},
+ {item:"Incident reporting deadline",rule:"No numeric deadline. 'Unverzueglich' (without undue delay) applies for manipulation and changed approval conditions.",tag:"none",src:"StVG sec. 1f(3); AFGBV sec. 9(7)",conf:"primary"}
+ ],
+ docs:["Application for the operating permit (E-Typ procedure)","Manufacturer's declaration (meets Annex 1 and sec. 3(8))","Operating manual (Annex 3 no. 2)","Safety concept with hazard analysis (ISO/PAS 21448, ISO 26262)","IT security concept (UN R155 as modified, GDPR)","Functional description (ISO 26262-3)","Test scenario catalogue with coverage justification","Proof for conditions that cannot be tested","Data storage security concept with impact assessment","Test evidence package (track, road, simulation validation)","Repair and maintenance information","Test vehicle for the KBA (free of charge)"],
+ gaps:["English text on gesetze-im-internet.de is a machine translation. The German text governs.","Annex 1 cut-in formula and two figures are images. Check the German original.","No fee or processing time for the operating permit was found.","Ask the KBA whether later editions of ISO 26262 and ISO 21448 are accepted.","'No Level 4 operating permit issued yet' rests on a Bundestag paper and a secondary site.","Area approval and supervisor licensing processes differ by state."]
+},
+ca: {
+ name:"California",
+ head:"Three DMV permits, then a CPUC permit for passenger service",
+ summary:"California has no single type approval and no government test list. The maker self-certifies federal vehicle standards (FMVSS), then climbs a ladder of DMV permits (drivered testing, driverless testing, deployment). Passenger service also needs a CPUC permit. The maker writes its own safety criteria and the DMV judges them. DMV rules were adopted on 28 April 2026; items marked pre-2026 come from the older text.",
+ est:"About 30 months (planning estimate; mileage drives it)",
+ steps:[
+ {t:"Company readiness",who:"Manufacturer",what:"DMV manufacturer licence, and financial responsibility of $5,000,000 by insurance, surety bond (OL 317) or self-insurance (OL 319, net worth at least $5M). Enrol in the DMV Employer Pull Notice Program.",time:"Months 0 to 3 (estimate)",basis:"Veh. Code 11701; 13 CCR 227.04 (pre-2026 text)",conf:"secondary"},
+ {t:"Federal position",who:"Manufacturer self-certifies; NHTSA only for exemptions",what:"Certify FMVSS compliance, or apply for a Part 555 exemption if there is no steering wheel or pedals (cap 2,500 vehicles a year). Register for NHTSA crash reporting.",time:"Months 0 to 3 (estimate)",basis:"Federal law",conf:"secondary"},
+ {t:"Controlled-conditions testing for each operating domain",who:"Manufacturer",what:"Test closed-course or simulated conditions for each domain before using public roads. No outside witness.",time:"Months 2 to 6 (estimate)",basis:"13 CCR 227.18(b) (pre-2026 text)",conf:"secondary"},
+ {t:"Drivered Testing Permit",who:"Manufacturer applies, DMV decides",what:"Form OL 311 and a safety case with the 14 core elements, including a minimal risk condition, fallback strategy and first responder plan.",time:"Months 5 to 8; DMV tells you in 10 business days if complete",basis:"DMV rules 2026; 13 CCR 227.20",conf:"secondary"},
+ {t:"Drive the required miles with a driver",who:"Manufacturer; DMV reviews monthly reports",what:"Light-duty vehicles: 50,000 autonomous miles across the domain. Low-speed: 10,000. Heavy-duty: 500,000 (at least 100,000 in California).",time:"About months 8 to 12 (estimate)",basis:"13 CCR 227.42(a)",conf:"secondary"},
+ {t:"Driverless Testing Permit",who:"Manufacturer applies, DMV decides",what:"Form OL 318. Notify local authorities first. Needs a continuously monitored link to a remote operator, SAE Level 4 or 5 certification, a law enforcement interaction plan and a remote operator training plan.",time:"About months 12 to 15 (estimate)",basis:"13 CCR Article 3.7 (pre-2026 text)",conf:"secondary"},
+ {t:"More miles, then Deployment Permit",who:"Manufacturer applies, DMV decides; public may comment",what:"Form OL 321. Includes domain, proof the vehicle cannot operate outside it, data recorder, cybersecurity certification, testing summary. Driverless permits wait 30 days after public notice. DMV must find no unreasonable risk.",time:"About months 15 to 25 (estimate; no decision deadline)",basis:"13 CCR 228.06 to 228.10",conf:"secondary"},
+ {t:"Passenger service permit",who:"CPUC",what:"Pilot permit (rides without fares) or deployment permit (with fares). Needs the matching DMV permit. Driverless applicants file a Passenger Safety Plan. Quarterly reports to CPUC.",time:"Can run alongside steps 4 to 7",basis:"CPUC AV programs",conf:"secondary"},
+ {t:"Operate and stay compliant",who:"Manufacturer, police, DMV",what:"Phone line answered within 30 s, in-vehicle two-way link, leave a geofenced area within 2 minutes, forward police notices within 72 h, monthly and quarterly reports.",time:"Ongoing",basis:"13 CCR 2026 rules",conf:"secondary"}
+ ],
+ values:[
+ {item:"Miles before driverless testing (light-duty)",rule:"50,000 autonomous miles with a driver, across the operating domain.",tag:"fixed",src:"13 CCR 227.42(a)",conf:"secondary"},
+ {item:"Miles before deployment (light-duty)",rule:"50,000 miles across the domain. The text is unclear whether this is additional to the driverless-testing miles. Plan for 100,000 total and ask the DMV.",tag:"fixed",src:"13 CCR 228.08(a)(1)",conf:"unverified"},
+ {item:"Low-speed and heavy-duty miles",rule:"Low-speed (under 25 mph): 10,000 per stage. Heavy-duty: 500,000 per phase, at least 100,000 in California.",tag:"fixed",src:"13 CCR 227.42",conf:"secondary"},
+ {item:"Change of operating domain",rule:"25,000 miles light-duty, 250,000 heavy-duty.",tag:"fixed",src:"13 CCR 227.42(b), 228.08(a)(2)",conf:"secondary"},
+ {item:"Financial responsibility",rule:"$5,000,000 (older text). Self-insurance needs audited net worth of at least $5M for 3 years.",tag:"fixed",src:"13 CCR 227.04(c) (pre-2026)",conf:"secondary"},
+ {item:"Controlled-conditions testing",rule:"Required before public roads. Tests and pass criteria are yours to define.",tag:"mfr",src:"13 CCR 227.18(b)",conf:"secondary"},
+ {item:"Safety case",rule:"14 core elements: use case, operating domain, system design, vehicle integration, validation, HMI, safety management, fleet operations, remote operations (with latency), incident response, post-crash, first responders, cybersecurity, misuse. Content and metrics are yours.",tag:"mfr",src:"DMV rules 2026 (reported)",conf:"secondary"},
+ {item:"'Safe enough' test",rule:"DMV must find no unreasonable risk of accident, death or injury. No number exists.",tag:"auth",src:"13 CCR 228.10(e)(2)",conf:"secondary"},
+ {item:"Permit fees",rule:"Drivered testing $3,600 (up to 10 vehicles and 20 drivers), $50 per extra block, $70 per change. Driverless testing $3,600. Deployment $3,275.",tag:"fixed",src:"Pre-2026 text",conf:"secondary"},
+ {item:"Permit term and renewal",rule:"Testing permits last 2 years; renew at least 60 days before expiry. Deployment has no expiry.",tag:"fixed",src:"13 CCR 227, 228",conf:"secondary"},
+ {item:"DMV review clocks",rule:"Testing: 10 business days to say complete. Deployment: 30 business days, then 30 more to fix, 1-year lapse, 30-day public notice for driverless.",tag:"fixed",src:"13 CCR 227.20, 228.08",conf:"secondary"},
+ {item:"No fixed decision deadline",rule:"There is no deadline for the final deployment decision.",tag:"none",src:"13 CCR 228",conf:"secondary"},
+ {item:"Hard-braking report trigger",rule:"Speed drop of at least 3 m/s from deceleration above 5 m/s2 lasting at least 0.5 s, on roads posted 35 mph or more. A reporting trigger, not a pass or fail limit.",tag:"fixed",src:"13 CCR 227.66",conf:"secondary"},
+ {item:"Notice of AV Noncompliance",rule:"Forward to the DMV within 72 h, or 24 h if marked priority. Operative 1 July 2026.",tag:"fixed",src:"DMV rules 2026",conf:"secondary"},
+ {item:"Emergency response",rule:"Phone line answered within 30 s. In-vehicle two-way link within 30 s. Leave a geofenced area within 2 minutes (from 1 July 2026).",tag:"fixed",src:"DMV rules 2026",conf:"secondary"},
+ {item:"Data recorder",rule:"At least 30 s of data before a collision, read-only, readable with a commercial tool.",tag:"fixed",src:"13 CCR 228.06",conf:"secondary"},
+ {item:"Reporting frequency",rule:"Monthly for testing, quarterly for deployment. The annual disengagement report was abolished.",tag:"fixed",src:"13 CCR 227.56 to 227.66",conf:"secondary"},
+ {item:"Remote staff",rule:"Valid licence, at least 3 years licensed, no negligent-operator points, trained and certified. Remote drivers need their own DMV permit.",tag:"fixed",src:"DMV rules 2026",conf:"secondary"},
+ {item:"Test driver (older text)",rule:"3 years licensed, at most one violation point, no at-fault injury accident, no DUI in 10 years, completed training.",tag:"fixed",src:"Pre-2026 text",conf:"secondary"},
+ {item:"Human-driver benchmark",rule:"No human comparison rule found. You may choose one in your safety case.",tag:"none",src:"-",conf:"secondary"},
+ {item:"CPUC Passenger Safety Plan contents",rule:"Required for driverless applicants. The item list was not verified.",tag:"auth",src:"CPUC",conf:"unverified"}
+ ],
+ docs:["Manufacturer licence and proof of financial responsibility","FMVSS certification or NHTSA Part 555 exemption","Safety case (14 core elements)","Controlled-conditions test results per domain","Form OL 311 (drivered testing), OL 318 (driverless testing), OL 321 (deployment)","Law enforcement interaction plan (reviewed yearly)","First responder plan with remote support and phone line","Remote operator training programme","Cybersecurity certification","Data recorder description (30 s pre-collision)","Testing summary with miles and collisions","CPUC pilot or deployment application and Passenger Safety Plan"],
+ gaps:["Several figures come from the 2019 text, not the 2026 rules. Confirm fees, insurance and review clocks.","The primary DMV text could not be retrieved for some 2026 numbers.","Unclear whether the 50,000 deployment miles are additional.","Contents of the CPUC Passenger Safety Plan not verified.","Cruise's final outcome and Zoox's driverless permit were not verified.","Start date for monthly reports (about 26 Aug 2026) is my calculation."]
+},
+tx: {
+ name:"Texas",
+ head:"One TxDMV authorization, after a first responder plan filed with DPS",
+ summary:"Texas regulates operation, not development. There is no state testing permit, no mileage threshold, no safety case and no fee. Since 28 May 2026, any driverless commercial run needs a TxDMV authorization, which needs a first responder plan filed with the Department of Public Safety (DPS) first. Cities cannot regulate AV operation.",
+ est:"About 1 to 3 months (planning estimate)",
+ steps:[
+ {t:"Federal position",who:"Manufacturer; NHTSA only for exemptions",what:"Self-certify FMVSS compliance, or obtain a Part 555 exemption if the vehicle has no manual controls. The Texas application needs a signed statement of federal compliance.",time:"Months 0 to 2 (estimate)",basis:"Federal law; Transp. Code 545.455",conf:"secondary"},
+ {t:"Title and register each vehicle in Texas",who:"Manufacturer, county tax office",what:"Every vehicle needs a recording device installed by the vehicle or system manufacturer. Runs in parallel with step 3.",time:"Months 0 to 1 (estimate)",basis:"Transp. Code 545.455(b)",conf:"secondary"},
+ {t:"File the first responder interaction plan with DPS",who:"Operator, vehicle maker or system maker; DPS receives it",what:"Covers how to reach fleet support, safe removal and towing, how to recognise that the system is engaged and other hazards. A prominent phone number and QR code go on each vehicle, plus a named contact. Must come before step 4.",time:"Months 0 to 1 (estimate)",basis:"37 TAC 39.3(a)",conf:"secondary"},
+ {t:"Apply to TxDMV for the authorization",who:"Manufacturer or operator; TxDMV approves",what:"Electronic filing. Name, entity type, contact, Secretary of State number, VIN, year, make and model of each vehicle, a signed statement on the six vehicle conditions, and certification that DPS has the plan. TxDMV must approve a complete application.",time:"Months 1 to 2; no statutory decision time found",basis:"43 TAC Ch. 220; Transp. Code 545.455",conf:"secondary"},
+ {t:"Optional: ride-hail or freight credentials",who:"TDLR; USDOT",what:"A TDLR TNC permit if you run your own ride-hail app. Motor-carrier credentials for freight.",time:"Parallel",basis:"Texas law",conf:"secondary"},
+ {t:"Operate and stay compliant",who:"Authorization holder",what:"Update TxDMV within 30 days of any material change, including each added vehicle. Answer TxDMV requests within 5 calendar days. General crash duties (Ch. 550) apply. Citations go to the authorization holder.",time:"Ongoing",basis:"43 TAC Ch. 220",conf:"secondary"}
+ ],
+ values:[
+ {item:"Testing permit",rule:"None required.",tag:"none",src:"Subchapter J",conf:"secondary"},
+ {item:"Minimum miles",rule:"None. A company can apply with zero public-road miles.",tag:"none",src:"Subchapter J",conf:"secondary"},
+ {item:"Safety case, simulation or closed-course testing",rule:"None to file. Your own board may still require them.",tag:"none",src:"Subchapter J",conf:"secondary"},
+ {item:"Operating domain filing with TxDMV",rule:"None.",tag:"none",src:"43 TAC Ch. 220",conf:"secondary"},
+ {item:"Fee",rule:"No fee.",tag:"fixed",src:"43 TAC Ch. 220",conf:"secondary"},
+ {item:"Authorization term",rule:"Does not expire unless suspended, revoked or cancelled.",tag:"fixed",src:"43 TAC Ch. 220",conf:"secondary"},
+ {item:"DPS plan before application",rule:"The first responder plan must be filed first.",tag:"fixed",src:"37 TAC 39.3(a)",conf:"secondary"},
+ {item:"Plan contents and vehicle display",rule:"Support contact, removal and towing, how to recognise engagement, hazards. Phone number and QR code on the vehicle.",tag:"fixed",src:"37 TAC Ch. 39",conf:"secondary"},
+ {item:"Support line performance",rule:"No number is stated. You choose and commit to a response time.",tag:"mfr",src:"37 TAC Ch. 39",conf:"secondary"},
+ {item:"Six vehicle conditions",rule:"Complies with Texas traffic law; has a recording device; ADS complies with federal law; can reach a minimal risk condition; registered and titled in Texas; liability cover at least what law requires.",tag:"fixed",src:"Transp. Code 545.455(b)",conf:"secondary"},
+ {item:"Update deadline",rule:"30 days after a material change, including each added vehicle.",tag:"fixed",src:"43 TAC Ch. 220",conf:"secondary"},
+ {item:"Response to a TxDMV request",rule:"5 calendar days, extendable on a written request.",tag:"fixed",src:"43 TAC Ch. 220",conf:"secondary"},
+ {item:"Insurance amount",rule:"At least what law requires for the vehicle type and use. A company dispatching AV rides is treated as ride-hail. Dollar amount not verified.",tag:"fixed",src:"Transp. Code 545.455",conf:"unverified"},
+ {item:"Local government",rule:"Cities cannot license or regulate AV operation.",tag:"fixed",src:"Transp. Code 545.452(b)",conf:"secondary"},
+ {item:"How TxDMV can stop you",rule:"Only through sec. 545.459: notice, cure period, hearing. Trigger is an unsafe vehicle likely to cause serious bodily injury. Hearing within 60 days or the authorization is reinstated. Failing to update allows immediate suspension.",tag:"auth",src:"Transp. Code 545.459",conf:"secondary"},
+ {item:"Penalty for operating without authorization",rule:"Class B misdemeanor for driverless commercial operation without the authorization and DPS plan. Each day is a separate offence.",tag:"fixed",src:"Subchapter J",conf:"secondary"}
+ ],
+ docs:["FMVSS certification or NHTSA exemption","Title and registration for each vehicle","First responder interaction plan (filed with DPS)","Phone number and QR code on each vehicle","TxDMV electronic application with VINs","Signed statement on the six vehicle conditions","Proof of liability coverage","TDLR TNC permit (if running a ride-hail app)"],
+ gaps:["Dollar amounts for ride-hail insurance not verified.","Whether pre-launch testing and mapping needs an authorization 'depends on the facts' (TxDMV). If any run is driverless and commercial in any sense, file the plan first.","Tesla's authorization date conflicts across sources.","Bill number of the 2017 law (SB 2205) not re-verified."]
+},
+cn: {
+ name:"China",
+ head:"City pilot permits plus a national model entry permit (MIIT)",
+ summary:"China has no single AV law. Rules are spread across ministry notices, national standards and city regulations (Beijing, Shenzhen, Shanghai Pudong). The national Level 3 and Level 4 pilot (17 Nov 2023) needs a joint application by maker and user. A mandatory safety standard, GB 44721-2026, applies from 1 July 2027. I could not open the original Chinese legal texts, so most items rest on law-firm and news summaries.",
+ est:"About 30 months (planning estimate; no statutory review times found)",
+ steps:[
+ {t:"Company, data and mapping readiness",who:"Manufacturer; mapping and data authorities",what:"The pilot user must be a China-registered legal entity. Plan for a mapping-qualified partner and a connection to local data platforms.",time:"Months 0 to 3 (estimate)",basis:"Pilot notice 17 Nov 2023; mapping notice",conf:"secondary"},
+ {t:"Build the evidence and company safety capability",who:"Manufacturer",what:"Simulation, proving-ground and real-road testing, plus cybersecurity, data and software-update tests. Show a safety policy, risk management, safety assurance and improvement process.",time:"Months 0 to 8 (estimate)",basis:"GB 44721-2026",conf:"secondary"},
+ {t:"Third-party testing before road test",who:"Accredited third-party institute",what:"The autonomous function must already be tested by an accredited third-party institute before you apply for a road test. The institute writes the report.",time:"Months 2 to 8 (estimate)",basis:"Road Test Norms 2021",conf:"secondary"},
+ {t:"City road-test permit",who:"City or district authority with traffic police",what:"Permission to test on named public roads. Needs the third-party report, insurance, test staff and vehicle data. Shenzhen recognises permits from other cities.",time:"Months 6 to 9 (estimate)",basis:"City rules; Road Test Norms",conf:"secondary"},
+ {t:"Demonstration application and operation",who:"Operator; city, transport bureau, traffic police, emergency management",what:"Write a transportation safety assurance plan (conditions, staffing, risk list, controls, emergency measures). Organise an expert review and risk assessment. Safety staff or platform monitors as required.",time:"Months 15 to 24 (estimate)",basis:"MOT Safety Guideline 2023",conf:"secondary"},
+ {t:"National entry permit (pilot)",who:"Maker and user apply jointly; city, province, then MIIT with MPS, MOT, MOHURD",what:"Model-level approval. The city reviews first, then provincial offices, then the four national ministries. MIIT grants the entry permit, possibly with conditions. Runs in parallel with the city steps.",time:"Months 12 to 30 (estimate)",basis:"Pilot notice 17 Nov 2023",conf:"secondary"},
+ {t:"Commercial operation",who:"Transport department, police",what:"Local approval with vehicle limits and designated areas. In Shanghai Pudong, fares may be charged with an operation certificate.",time:"From about month 24 (estimate)",basis:"City rules",conf:"secondary"},
+ {t:"Operate and comply with GB 44721",who:"Operator",what:"From 1 July 2027 new Level 3 and Level 4 products must comply with GB 44721-2026, enforced through product type approval. Data reporting to local platforms, insurance, accident handling.",time:"Ongoing",basis:"GB 44721-2026",conf:"secondary"}
+ ],
+ values:[
+ {item:"Safety level",rule:"At least as safe as a competent, attentive driver. No number. Mandatory from 1 July 2027.",tag:"fixed",src:"GB 44721-2026",conf:"secondary"},
+ {item:"Safety metric and margin",rule:"You choose the metric and defend it.",tag:"mfr",src:"GB 44721-2026",conf:"secondary"},
+ {item:"Test types",rule:"Simulation, proving ground and real-road testing.",tag:"fixed",src:"GB 44721-2026; pilot notice",conf:"secondary"},
+ {item:"Road-test accumulated time",rule:"At least 72 hours of effective test time across single continuous tests. (Recommended standard; some alternative conditions could not be read.)",tag:"fixed",src:"GB/T 44719-2024",conf:"secondary"},
+ {item:"Night testing",rule:"Required if the function can activate below 50 lx.",tag:"fixed",src:"GB/T 44719-2024",conf:"secondary"},
+ {item:"Logging",rule:"At least 50 Hz sampling. Video 1920 x 1080 at 30 frames/s or more. Accuracy: speed 0.1 km/h, distance 0.1 m, acceleration 0.1 m/s2.",tag:"fixed",src:"GB/T 44719-2024",conf:"secondary"},
+ {item:"Pass criterion: dynamic driving",rule:"No accident for which the vehicle is responsible. Follow traffic rules.",tag:"fixed",src:"GB/T 44719-2024",conf:"secondary"},
+ {item:"Overall driving quality",rule:"No needless stopping or unjustified hard braking. No numeric limit found; the reviewer judges.",tag:"auth",src:"GB/T 44719-2024",conf:"unverified"},
+ {item:"Pilot user",rule:"Must be a China-registered legal entity.",tag:"fixed",src:"Pilot notice 2023",conf:"secondary"},
+ {item:"On-board safety officer",rule:"1 in conditional and highly automated taxis. 1 driver or safety officer in buses. In principle 1 in freight.",tag:"fixed",src:"MOT Safety Guideline 2023",conf:"secondary"},
+ {item:"Remote safety officer (driverless taxis)",rule:"At least 1 remote officer to 3 vehicles, designated areas, city approval.",tag:"fixed",src:"MOT Safety Guideline 2023",conf:"secondary"},
+ {item:"Event data",rule:"Record and keep at least 90 s before an accident or autonomous-function failure. 10 data categories, key data sent live to operator and transport authority.",tag:"fixed",src:"MOT Safety Guideline 2023",conf:"secondary"},
+ {item:"Real-world test distance (Shenzhen draft)",rule:"1,000 km covering at least 2% of the fleet; first application up to 10 vehicles (20 for cargo). Draft; final wording not verified.",tag:"fixed",src:"Shenzhen draft Oct 2025",conf:"unverified"},
+ {item:"Insurance",rule:"Required. Amount not found. The 2018 test rules set RMB 5 million per test vehicle, but I could not confirm it carried over.",tag:"fixed",src:"City rules; 2018 rules",conf:"unverified"},
+ {item:"Data export",rule:"Important data (for example street video with faces or plates, or personal data on more than 100,000 people) needs annual reporting and a national security assessment before it leaves China.",tag:"fixed",src:"Automobile data security provisions",conf:"secondary"},
+ {item:"Statutory review times",rule:"None found for the city or national steps.",tag:"none",src:"-",conf:"unverified"},
+ {item:"Mileage threshold in Beijing or Shanghai",rule:"None found in the summaries. Do not assume zero; check the local text.",tag:"none",src:"-",conf:"unverified"}
+ ],
+ docs:["Joint pilot application (maker and China-registered user)","Company safety capability documents (policy, risk, assurance, improvement)","Third-party institute test report (simulation, track, road)","Operating domain description (GB/T 45312-2025)","Insurance evidence and test staff records","Transportation safety assurance plan, expert review and risk assessment","Cybersecurity, data and software-update test records","Mapping qualification or partner agreement","Data connection to the city monitoring platform"],
+ gaps:["Original Chinese legal texts of the Beijing, Shenzhen and Shanghai rules were not opened.","Whether the Shenzhen draft figures were adopted unchanged.","Insurance amounts and mapping qualification steps not verified.","Road Test Norms effective date: 27 July 2021 or 1 Sept 2021, sources differ.","GB 44721 scenario lists and thresholds were not available.","Draft national Road Traffic Safety Law has no effective date yet."]
+}
+,on: {
+ name:"Ontario",
+ head:"Registrar approval under O. Reg. 306/15 (pilot project)",
+ summary:"Ontario runs an automated vehicle pilot under the Highway Traffic Act. The Registrar approves testing with or without conditions.",
+ est:"Pilot ends 13 October 2027",
+ steps:[
+ {t:"Check eligibility",who:"Applicant",what:"Original manufacturers (with an MVSA national safety mark or foreign manufacturer registration), or converters that are technology companies, academic institutions or parts manufacturers.",time:"",basis:"s. 7"},
+ {t:"Apply to the Registrar",who:"Applicant",what:"Include whatever the Registrar requests. There is no fixed list of documents.",time:"",basis:"s. 8"},
+ {t:"Registrar decision",who:"Registrar",what:"Approve with conditions, approve without conditions, or refuse if not satisfied that testing will be conducted safely.",time:"",basis:"s. 9"},
+ {t:"Test under the approval",who:"Driver and owner",what:"The driver stays in the driver's seat, monitors operation, carries the approval document and tells police the vehicle is automated. Driverless Level 4 and 5 vehicles are exempt from these duties.",time:"",basis:"ss. 13, 13.1"},
+ {t:"Report",who:"Approval holder",what:"Tell the Registrar of changes to the application within 10 days. Report collisions within 10 days. Keep records until three years after the regulation is revoked.",time:"",basis:"ss. 14 to 16"},
+ {t:"Revocation",who:"Registrar",what:"Grounds: false information, breaking conditions, no longer eligible, breaking the regulation, or testing not conducted safely. Full revocation only, no suspension.",time:"",basis:"s. 10"}
+ ],
+ values:[
+ {item:"Application contents",rule:"Whatever the Registrar requests. No fixed minimum.",tag:"auth",src:"s. 8"},
+ {item:"Test pass numbers",rule:"None. No ODD, safety case, simulation or track-testing requirement, and no performance milestones.",tag:"none",src:"ss. 8, 9"},
+ {item:"Safety standard",rule:"The Registrar must be satisfied testing will be conducted safely. 'Safely' is not defined and there is no objective standard.",tag:"auth",src:"ss. 9, 10"},
+ {item:"System requirements (driver-operated)",rule:"Engage and disengage mechanism, a failure alert that demands takeover or causes a safe stop, and a driver override.",tag:"fixed",src:"s. 12"},
+ {item:"System requirements (driverless Level 4 and 5)",rule:"Exempt from the s. 12 requirements. No minimum hardware rules in the regulation.",tag:"none",src:"s. 13.1"},
+ {item:"Driver duties",rule:"Stay in the driver's seat, monitor operation, carry the approval document, show it to police on demand, tell police the vehicle is automated.",tag:"fixed",src:"s. 13"},
+ {item:"Collision report",rule:"Within 10 days. Six data fields: vehicles by VIN, persons involved, location, apparent cause, injury and damage details, anything else the Registrar requests.",tag:"fixed",src:"s. 15"},
+ {item:"Change of application information",rule:"Notify the Registrar within 10 days.",tag:"fixed",src:"s. 14"},
+ {item:"Records",rule:"Keep all records until three years after the regulation is revoked. Electronic records must be retrievable on request.",tag:"fixed",src:"s. 16"},
+ {item:"Disengagement reporting",rule:"None. No near-miss reporting or in-service monitoring either.",tag:"none",src:"Part 7"}
+ ],
+ docs:["Application with whatever the Registrar asks for","MVSA national safety mark or foreign manufacturer registration (manufacturers)","Approval document, carried in the vehicle"],
+ gaps:["No operating domain, safety case, simulation or track-testing requirement.","'Safely' is not defined, so there is no objective standard.","No sensor, SOTIF, ISO 26262, software validation or cybersecurity requirement.","No law enforcement interaction plan beyond telling police the vehicle is automated.","Revocation is the only power. There is no suspension and no mid-permit audit."]
+}
+};
+
+var COMPARE_ROWS = [
+ ["Approval model",
+  {on:"Registrar approval under a pilot, with or without conditions",de:"One national approval (KBA) plus a state operating-area approval",ca:"Layered: FMVSS self-certification, three DMV permits, CPUC for passenger service",tx:"One TxDMV authorization after a DPS plan. No development permit.",cn:"City permits plus a national MIIT entry permit (pilot)"}],
+ ["Who certifies safety",
+  {on:"The Registrar, if satisfied testing will be conducted safely",de:"KBA with a technical service, BSI and data protection authority",ca:"DMV, with optional outside experts. NHTSA does not pre-approve.",tx:"Nobody certifies safety in advance. TxDMV checks the paperwork.",cn:"MIIT and city authorities, with accredited third-party test institutes"}],
+ ["Test pass numbers",
+  {on:"None",de:"Fixed in Annex 1 (3 s TTC, 2.4 m/s2, cut-in table, UN R152 and R79)",ca:"None fixed. You set them in the safety case.",tx:"None",cn:"72 h road test and logging rules in a recommended standard. No safety threshold number."}],
+ ["Safety case",
+  {on:"Not required",de:"Required in substance (safety concept)",ca:"Required, 14 core elements",tx:"Not required",cn:"Required as a dossier under GB 44721"}],
+ ["'Safe enough' test",
+  {on:"Registrar satisfied testing will be safe, no number",de:"Safer than human drivers, no number",ca:"No unreasonable risk, no number",tx:"Enforcement trigger only (unsafe and likely serious injury)",cn:"At least as safe as a competent, attentive driver, no number"}],
+ ["Minimum miles",
+  {on:"None",de:"None",ca:"50,000 per phase (light-duty); 500,000 heavy-duty",tx:"None",cn:"None national; Shenzhen draft 1,000 km (unverified)"}],
+ ["Simulation",
+  {on:"Not required",de:"Required and validated against real tests; 3 parameter sets minimum",ca:"Allowed as evidence. Controlled-conditions testing required first.",tx:"Not required",cn:"Part of the three test layers"}],
+ ["Data recording",
+  {on:"No recording rule. Records kept 3 years after the regulation is revoked.",de:"13 categories; authorities delete within 3 years",ca:"At least 30 s before a collision",tx:"Recording device required",cn:"At least 90 s before an accident (operator guideline)"}],
+ ["Passenger service",
+  {on:"-",de:"PBefG licence",ca:"CPUC permit",tx:"TDLR permit if you run the ride-hail app",cn:"Transport department and police approval"}],
+ ["How it can be stopped",
+  {on:"Registrar revocation only. No suspension power.",de:"KBA revocation or suspension",ca:"DMV suspension, revocation, fleet limits",tx:"Only through notice, cure period and hearing",cn:"City and ministry authorities"}],
+ ["Speed to market (estimate)",
+  {on:"-",de:"About 32 months; slowest",ca:"About 30 months; driven by miles",tx:"About 1 to 3 months",cn:"About 30 months; no review times found"}]
+];
+
+
+var TEST_ITEMS = {
+ on:["Application contents","Test pass numbers","Safety standard","System requirements (driver-operated)","System requirements (driverless Level 4 and 5)","Driver duties","Collision report","Change of application information","Records","Disengagement reporting"],
+ de:["Right-of-way time to collision (TTC)","Acceleration with standing or unbelted passengers","Cut-in minimum TTC (10 to 60 km/h relative speed)","Braking assumed for other road users","Collision avoidance (UN R152 based)","Own lane change and turning","Simulation parameter sets","Emergency driving function","Remote control"],
+ ca:["Miles before driverless testing (light-duty)","Miles before deployment (light-duty)","Low-speed and heavy-duty miles","Change of operating domain","Hard-braking report trigger","Emergency response","Data recorder"],
+ tx:["Testing permit","Minimum miles","Safety case, simulation or closed-course testing"],
+ cn:["Road-test accumulated time","Night testing","Logging","Pass criterion: dynamic driving","Event data","Real-world test distance (Shenzhen draft)"]
+};
+var CTY_ORDER = ["on","de","ca","tx","cn"];
+var CTY_REFS = {on:["R15"], de:["R10","R14"], ca:["R11","R14"], tx:["R12","R14"], cn:["R13","R14"]};
+
+
+var REFS_ONT = [
+ {id:"R1", t:"Ministry of Transportation Ontario. Design Supplement for the TAC Geometric Design Guide for Canadian Roads (October 2023).", d:"Appendix B p. 5 (notes 1 and 4); Appendix 3 §3.2.6.1 p. 11; Appendix 4 p. 2; Appendix 10 Exhibit 10AD p. 33, Exhibit 10Y p. 27 (title not confirmed), Exhibit 10E p. 14; Appendix 13 §13.7.3.1 p. 41, §13.8.1.2 Exhibit 13G p. 46, §13.8.6.1 Exhibit 13S p. 61 (work-zone, interim)."},
+ {id:"R2", t:"Ministry of Transportation Ontario. Policy Memo SCB-HDO-2026-01 (15 June 2026).", d:"Mainline speeds 100, 110 and 120 km/h."},
+ {id:"R3", t:"Ministry of Transportation Ontario. Level Two handbook (2020).", d:"p. 4: time headway 2 s. p. 18: visibility 150 m. p. 93: wet roads become icy below freezing. Also the rule to start slowing only after fully in the exit lane."},
+ {id:"R4", t:"PoliTO dissertation (author and title to be added).", d:"Table 3.5 p. 95 (merge gaps). Table 4.1 p. 125 (lane-change gaps). Means from that study, not Ontario data."},
+ {id:"R5", t:"Canadian Council of Motor Transport Administrators. National Safety Code Standard 2: Knowledge and Performance Tests for Drivers (January 2020).", d:"Maneuvers and performances assessed. p. 57: hazard detection, including emergency vehicles."},
+ {id:"R6", t:"Federal Highway Administration (2021). Title to be added.", d:"pp. 18 and 48: temperature, wind, sun elevation and illuminance limits for the baseline environment."},
+ {id:"R7", t:"UN Regulation No. 157 (R157r1e).", d:"Annex 3 §3.3.2.3 p. 62: truck braking rate."},
+ {id:"R8", t:"ISO 21448:2022. Safety of the intended functionality.", d:"Table B.3: precipitation categories (light snow, heavy snow, sleet, freezing rain). Qualitative only."},
+ {id:"R9", t:"ISO 34503:2023.", d:"Clause 10.2.5: precipitation categories. Qualitative only."},
+ {id:"R16", t:"Charlebois. Reconstruction of autonomous emergency braking events (paper in the project files). Full citation to be added.", d:"3 to 7 trials per condition. Target decelerated at 6 m/s2. One urban reference, not an MTO value."}
+];
+var REFS_CTY = [
+ {id:"R10", t:"Germany: AFGBV (last amended 12 May 2026) with Annexes 1 to 3, and StVG sections 1d to 1l.", d:"As read in R14. Annex 1 cites UN R152 and UN R79 for pass criteria."},
+ {id:"R11", t:"California: DMV rules adopted 28 April 2026, 13 CCR Articles 3.7 (testing) and 3.8 (deployment).", d:"Fees, clocks and some limits come from the older text and are marked pre-2026. Several 2026 items rest on summaries."},
+ {id:"R12", t:"Texas: Transportation Code Chapter 545 Subchapter J (SB 2807, 2025); 43 TAC Chapter 220; 37 TAC Chapter 39.", d:"Compliance date 28 May 2026."},
+ {id:"R13", t:"China: Road Test Norms (27 July 2021); GB/T 44719-2024; GB 44721-2026; MOT Safety Guideline (21 November 2023); pilot notice (17 November 2023).", d:"Read through law-firm and news summaries, not the original texts. Shenzhen figures are from a draft."},
+ {id:"R15", t:"Ontario: O. Reg. 306/15, Pilot Project - Automated Vehicles, under the Highway Traffic Act, R.S.O. 1990, c. H.8 (as amended by O. Reg. 517/18 and O. Reg. 268/25).", d:"Section numbers (s.) are from the regulation, read through the project workbook."},
+ {id:"R14", t:"Alam, M. (2026). Skylab AV: German approval path and document stack. Research document, 9 November 2026.", d:"Compiled all four jurisdictions from the sources above. Reliability of each item is shown on the page."}
+];
+var GAP_REFS = [
+ {id:"ml", label:"Merge lead gap (3.37 s)", sec:3.37, unit:"s"},
+ {id:"mg", label:"Merge lag gap (1.38 s)", sec:1.38, unit:"s"},
+ {id:"ll", label:"Lane-change lead gap (85.95 m)", m:85.95, unit:"m"},
+ {id:"lg", label:"Lane-change lag gap (46.29 m)", m:46.29, unit:"m"}
+];
+
+/* ============ PURE FUNCTIONS ============ */
+function toMs(kmh){ return kmh/3.6; }
+function secToM(kmh,s){ return toMs(kmh)*s; }
+function mToSec(kmh,m){ return m/toMs(kmh); }
+function avgAccel(v1,v2,L){ var a=toMs(v1), b=toMs(v2); return (b*b-a*a)/(2*L); }
+function latAccel(kmh,R){ var v=toMs(kmh); return v*v/R; }
+function brakeDist(kmh,dec){ var v=toMs(kmh); return v*v/(2*dec); }
+function stopDist(kmh,tr,dec){ return toMs(kmh)*tr + brakeDist(kmh,dec); }
+function taperLen(W,S){ return W*S/1.6; }
+function parseNum(s){ if(s===null||s===undefined) return NaN; s=String(s).trim().replace(",","."); if(s==="") return NaN; var n=Number(s); return isFinite(n)?n:NaN; }
+function fmt(n,d){ return Number(n).toLocaleString("en-CA",{minimumFractionDigits:d,maximumFractionDigits:d}); }
+function esc(s){ return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
+function csvCell(s){ s=String(s==null?"":s); return /[",\n\r]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s; }
+function byId(list,id){ for(var i=0;i<list.length;i++){ if(list[i].id===id) return list[i]; } return null; }
+function clone(o){ return JSON.parse(JSON.stringify(o)); }
+function sg(n,d){ return (n>=0?"+":"−")+fmt(Math.abs(n),d); }
+
+/* Check one typed number. Empty is allowed (optional). Returns {val} or {err}. */
+function checkNum(str,spec){
+  var s=(str===undefined||str===null)?"":String(str).trim();
+  if(s==="") return {val:null};
+  var n=parseNum(s);
+  if(isNaN(n)) return {err:"Enter a number, for example "+(spec.eg||"500")+"."};
+  if(spec.int && Math.floor(n)!==n) return {err:"Enter a whole number."};
+  if(n<0) return {err:"Cannot be negative."};
+  if(n===0 && !spec.zero) return {err:"Must be greater than 0."};
+  if(n<spec.lo || n>spec.hi) return {err:"Outside the realistic range ("+fmt(spec.lo,spec.lo%1?2:0)+" to "+fmt(spec.hi,0)+(spec.unit?" "+spec.unit:"")+")."};
+  return {val:n};
+}
+
+/* ============ SCENARIO DESIGNER ============ */
+var SPEEDS = [100,110,120];
+var MAX_MID = 6;
+var G_ACC = 9.81;
+var SKILL_ORDER = ["acc","slow","keep","lane","gap","haz","sig"];
+var SKILL_NAME = {acc:"Accelerate", slow:"Slowing", keep:"Hold speed", lane:"Lane keeping", gap:"Gap judgment", haz:"Hazard response", sig:"Signal"};
+
+/* Step types. "measure" is what the run records; "wmeasure" replaces it in winter. */
+var STEPS = {
+ merge:  {n:"Enter and merge", traffic:"Moderate mixed traffic", skills:["acc","gap","sig","lane"],
+          measure:"signal timing, gap accepted, speed at the merge nose, lane position.",
+          wmeasure:"speed at the merge nose (reach the traffic speed, not the limit), gap accepted, signal timing, lane position."},
+ drive:  {n:"Drive along", traffic:"Low density, free flow", skills:["keep","lane"], len:500, lbl:"Length (m)",
+          measure:"speed trace, standard deviation of speed, lane offset.",
+          wmeasure:"(proposed) speed at or below the traffic speed, standard deviation of speed, lane offset."},
+ slow:   {n:"Drive along behind a slow vehicle", traffic:"Slow vehicle ahead", skills:["keep","haz","lane"], len:500, lbl:"Length (m)",
+          measure:"speed trace, standard deviation of speed, lane offset, response to the slow vehicle.",
+          wmeasure:"(proposed) speed at or below the traffic speed, standard deviation of speed, lane offset."},
+ lane:   {n:"Change lane", traffic:"Moderate mixed traffic", skills:["gap","sig","keep","lane"], len:300, lbl:"Length (m)",
+          measure:"gap accepted (s, m), other vehicle forced to brake (yes/no), signal before moving."},
+ closure:{n:"Lane closure ahead", traffic:"Moderate mixed traffic", skills:["gap","sig","lane"], len:250, lbl:"Closed length after the taper (m)",
+          measure:"(proposed) time to complete the lane change, gap accepted, signal timing."},
+ brake:  {n:"Lead vehicle brakes hard", traffic:"Erratic human behaviour (hard braking)", skills:["haz","slow","lane"], len:250, lbl:"Length (m)",
+          measure:"brake onset, maximum deceleration, minimum gap, impact speed, lane offset.",
+          wmeasure:"brake onset, maximum deceleration, minimum gap, impact speed; a longer stopping distance is expected."},
+ ev:     {n:"Emergency vehicle from behind", traffic:"Emergency vehicle approaching from behind", skills:["haz","slow","lane"], len:450, lbl:"Length (m)",
+          measure:"(proposed) time to clear the path, lane position."},
+ exit:   {n:"Exit", traffic:"Low density, free flow", skills:["slow","sig","lane"],
+          measure:"where slowing starts, ramp entry speed, lane position.",
+          wmeasure:"(proposed) at or below the ramp entry speed, where slowing starts, lane position."}
+};
+var MID_TYPES = ["drive","slow","lane","closure","brake","ev"];
+
+var ENVS = {
+ day:   {n:"Daylight", d:"Clear sunny day, dry road, clear lane markings, no snowbanks.", theme:"day"},
+ fog:   {n:"Fog", d:"Fog (visibility level still to be set), dry road, daylight, clear lane markings.", theme:"fog"},
+ night: {n:"Night", d:"Night with no road lighting, dry road, clear lane markings. Keep this test only if detection in the AV stack is camera-based.", theme:"night"},
+ winP:  {n:"Winter, markings partly covered", d:"Daylight, slippery road (low friction), lane markings partly covered by snow, snowbanks on both sides.", theme:"snow", snow:"partial", winter:true},
+ winF:  {n:"Winter, markings fully covered", d:"Daylight, slippery road (low friction), lane markings fully covered by snow, snowbanks on both sides.", theme:"snow", snow:"full", winter:true}
+};
+var ENV_ORDER = ["day","fog","night","winP","winF"];
+
+var MID_B = [["drive",500],["brake",250],["closure",250],["ev",450]];
+var PRESETS = [
+ {n:"Test 1 · Normal", title:"Test 1: Normal Highway Driving", env:"day", mid:[["slow",500],["lane",300]], exit:true},
+ {n:"Test 2 · Emergency, clear", title:"Test 2: Emergency Highway Driving (clear day)", env:"day", mid:MID_B, exit:false},
+ {n:"Test 3 · Emergency, fog", title:"Test 3: Emergency Highway Driving in fog", env:"fog", mid:MID_B, exit:false},
+ {n:"Test 4 · Emergency, night", title:"Test 4: Emergency Highway Driving at night", env:"night", mid:MID_B, exit:false},
+ {n:"Test 5 · Winter, markings partly covered", title:"Test 5: Winter Highway Driving (markings partly covered)", env:"winP", mid:[["slow",600],["closure",250],["brake",300]], exit:true},
+ {n:"Test 6 · Winter, markings fully covered", title:"Test 6: Winter Highway Driving (markings fully covered)", env:"winF", mid:[["slow",600],["closure",250],["brake",300]], exit:true}
+];
+
+/* Typed numbers. Empty = default. lo/hi only catch typing mistakes. */
+var GEO_IN = [
+ {id:"acc",  label:"Acceleration lane length", unit:"m",    def:435, lo:50,  hi:1000, eg:"435", hint:"MTO: 500 m standard, 435 m short (interim). Includes a 90 m taper.", r:["R1"]},
+ {id:"dec",  label:"Deceleration lane length", unit:"m",    def:345, lo:50,  hi:1000, eg:"345", hint:"MTO: 345 m including a 90 m taper, single-lane exit.", r:["R1"]},
+ {id:"rad",  label:"Exit ramp radius",         unit:"m",    def:130, lo:20,  hi:2000, eg:"130", hint:"MTO: 130 m minimum, 250 m desirable. Drawn as a schematic curve.", r:["R1"]},
+ {id:"lw",   label:"Lane width",               unit:"m",    def:3.75,lo:2.5, hi:5,    eg:"3.75",hint:"MTO: 3.50 to 3.75 m.", r:["R1"]},
+ {id:"v0",   label:"AV speed entering the acceleration lane", unit:"km/h", def:40, lo:1, hi:120, eg:"40", hint:"Your setting."},
+ {id:"v1",   label:"AV speed at the ramp entry", unit:"km/h", def:60, lo:1, hi:120, eg:"60", hint:"Your setting. A ceiling in winter, not a target."}
+];
+var BRAKE_IN = [
+ {id:"tr",   label:"Reaction time",        unit:"s",    lo:0.01, hi:10, eg:"1", hint:"Your value. Not set by any source here."},
+ {id:"aav",  label:"AV braking rate",      unit:"m/s²", lo:0.5, hi:15, eg:"5", hint:"Your value."},
+ {id:"alead",label:"Lead vehicle braking", unit:"m/s²", lo:0.5, hi:15, eg:"6", hint:"To be set by MTO. One urban reference is 6 m/s² (Charlebois, R16).", r:["R16"]}
+];
+var OTHER_IN = {
+ vt:  {label:"Traffic speed", unit:"km/h", lo:20, hi:130, eg:"90"},
+ reps:{label:"Repeats per test", unit:"", lo:1, hi:20, eg:"3", int:true},
+ len: {label:"Length", unit:"m", lo:50, hi:3000, eg:"500"}
+};
+
+/* ---- pure layout: turns the chosen steps into distances, AV path, vehicles ---- */
+function pathY(x,trans){
+  var y=trans.length?trans[0][2]:0;
+  trans.forEach(function(t){ if(x>=t[0]){ var u=Math.min(1,Math.max(0,(x-t[0])/(t[1]-t[0]))); y=t[2]+(t[3]-t[2])*u*u*(3-2*u); } });
+  return y;
+}
+function layout(M){
+  var Y=function(l){return (l-1)*40;}, tp=Math.min(90,M.acc), tp2=Math.min(90,M.dec);
+  var x=0, lane=1, curY=0, steps=[{type:"merge",x0:0,x1:M.acc}], trans=[[M.acc-tp,M.acc,-40,0]], veh=[], ghosts=[], gaps=[], closure=null, exit=null, xEnd;
+  x=M.acc;
+  M.mid.forEach(function(s){
+    var t=s.type, L=s.len, x0=x, x1=x0+L, d, a, tgt;
+    if(t==="slow"){ var tx=x0+L*0.6; veh.push({x:tx,y:Y(lane),k:"truck",lab:"Slow vehicle"}); ghosts.push({x:tx-110,y:Y(lane),lab:"AV behind the slow vehicle"}); }
+    else if(t==="lane"){ d=lane<3?1:-1; a=x0+L*0.3; tgt=Y(lane+d); trans.push([a,a+Math.min(150,L*0.5),curY,tgt]); lane+=d; curY=tgt; }
+    else if(t==="closure"){
+      d=lane<3?1:-1; var cs=x0+30, tl=taperLen(M.lw,M.limit); x1=cs+tl+L;
+      closure={cs:cs,tl:tl,ce:x1,y:Y(lane),dir:d,lane:lane};
+      tgt=Y(lane+d); trans.push([cs,cs+Math.min(150,tl),curY,tgt]); lane+=d; curY=tgt;
+    }
+    else if(t==="brake"){
+      var g=secToM(M.vt,2), ax=x0+60;
+      ghosts.push({x:ax,y:Y(lane),lab:"AV at brake onset"});
+      veh.push({x:ax+g,y:Y(lane),k:"car",lab:"Lead vehicle (soft target)"});
+      gaps.push({x0:ax,x1:ax+g,y:Y(lane),txt:"2 s gap: "+fmt(g,1)+" m at "+fmt(M.vt,0)+" km/h"});
+    }
+    else if(t==="ev"){
+      veh.push({x:x0+L*0.25,y:Y(lane),k:"ev",lab:"Emergency vehicle"}); ghosts.push({x:x0+L*0.6,y:Y(lane),lab:"AV ahead of the emergency vehicle"});
+      d=lane>1?-1:1; a=x0+L*0.65; tgt=Y(lane+d); trans.push([a,a+Math.min(150,L*0.35),curY,tgt]); lane+=d; curY=tgt;
+    }
+    steps.push({type:t,x0:x0,x1:x1}); x=x1;
+  });
+  if(M.exit){
+    var x0=x, moves=lane-1, xe0;
+    for(var i=0;i<moves;i++){ trans.push([x0+i*150,x0+i*150+120,curY,curY-40]); curY-=40; }
+    xe0=x0+moves*150+60; trans.push([xe0,xe0+tp2,0,-40]);
+    exit={x0:xe0,x1:xe0+M.dec}; steps.push({type:"exit",x0:x0,x1:exit.x1}); xEnd=exit.x1+160;
+  } else xEnd=x+50;
+  return {steps:steps,trans:trans,veh:veh,ghosts:ghosts,gaps:gaps,closure:closure,exit:exit,xEnd:xEnd,startX:Math.max(40,Math.round(M.acc*0.25))};
+}
+
+/* ---- SVG drawing. x is metres (true scale), y is lane units (exaggerated) ---- */
+var STEP_COLORS=["#3b7dd8","#e07b39","#2e9e4f","#8e5bb5","#c0392b","#0f8b8d","#b08900"];
+var THEMES={
+ day:  {bg:"#e6eedf",road:"#7d7f84",tc:"#1d2630",halo:"#ffffff",edge:"#f2f2f2",yel:"#f2c200",ax:"#444"},
+ fog:  {bg:"#e3e8ea",road:"#80838a",tc:"#1d2630",halo:"#ffffff",edge:"#f2f2f2",yel:"#f2c200",ax:"#444"},
+ night:{bg:"#0a1222",road:"#202329",tc:"#f0f3f7",halo:"#0a1222",edge:"#aeb4bd",yel:"#a68a10",ax:"#9aa3b2"},
+ snow: {bg:"#eef3f7",road:"#8a8d93",tc:"#1d2630",halo:"#ffffff",edge:"#f2f2f2",yel:"#f2c200",ax:"#444"}
+};
+function rng32(a){ return function(){ a|=0; a=a+0x6D2B79F5|0; var t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+
+function figSVG(M,L,env,W){
+  var th=THEMES[env.theme], rand=rng32(11), XS0=-150, xr=L.xEnd-XS0+20, PADL=10, PADR=14;
+  var S=Math.max(0.4,(W-PADL-PADR)/xr), LANE_PX=26, K=LANE_PX/40, Y1=200, Y0=-150, TOP=6, AXIS=34;
+  var H=TOP+(Y1-Y0)*K+AXIS, WID=PADL+PADR+xr*S;
+  var X=function(m){return PADL+(m-XS0)*S;}, YY=function(d){return TOP+(Y1-d)*K;};
+  var f=function(n){return Math.round(n*10)/10;}, o=[];
+  var text=function(x,y,s,opt){ opt=opt||{}; return '<text x="'+f(x)+'" y="'+f(y)+'" text-anchor="'+(opt.a||"middle")+'" font-size="'+(opt.s||11)+'" fill="'+(opt.c||th.tc)+'"'+(opt.w?' font-weight="'+opt.w+'"':'')+(opt.i?' font-style="italic"':'')+' style="paint-order:stroke;stroke:'+(opt.nohalo?'none':th.halo)+';stroke-width:3px;stroke-linejoin:round">'+esc(s)+'</text>'; };
+  var line=function(x1,y1,x2,y2,c,w,dash,op){ return '<line x1="'+f(x1)+'" y1="'+f(y1)+'" x2="'+f(x2)+'" y2="'+f(y2)+'" stroke="'+c+'" stroke-width="'+w+'"'+(dash?' stroke-dasharray="'+dash+'"':'')+(op?' opacity="'+op+'"':'')+'/>'; };
+  var pts2=function(a){ return a.map(function(p){return f(X(p[0]))+","+f(YY(p[1]));}).join(" "); };
+
+  /* bottom road edge: ramp lanes widen the road on the right */
+  var tp=Math.min(90,M.acc), tp2=Math.min(90,M.dec);
+  var edge=[[-400,-20],[-0.01,-20],[0,-60],[M.acc-tp,-60],[M.acc,-20]];
+  if(L.exit) edge=edge.concat([[L.exit.x0,-20],[L.exit.x0+tp2,-60],[L.exit.x1,-60],[L.exit.x1+0.01,-20]]);
+  edge.push([L.xEnd+500,-20]);
+  var bot=function(x){ for(var i=1;i<edge.length;i++){ if(x<=edge[i][0]){ var a=edge[i-1],b=edge[i]; return b[0]===a[0]?b[1]:a[1]+(b[1]-a[1])*(x-a[0])/(b[0]-a[0]); } } return -20; };
+  var xmax=XS0+xr, road=[], N=Math.ceil(xr/4), i, x;
+  road.push([XS0,100]); road.push([xmax,100]);
+  for(i=N;i>=0;i--){ x=XS0+(xmax-XS0)*i/N; road.push([x,bot(x)]); }
+
+  o.push('<rect width="'+f(WID)+'" height="'+f(H)+'" fill="'+th.bg+'"/>');
+  o.push('<defs><marker id="pa" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#0b6b2c"/></marker><pattern id="hz" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8" height="8" fill="#f08a24"/><rect width="4" height="8" fill="#fff" opacity=".85"/></pattern></defs>');
+  o.push('<polygon points="'+pts2(road)+'" fill="'+th.road+'"/>');
+
+  /* ramp bands */
+  function band(cx,cy,hw){ var Lp=[],Rp=[],n=cx.length,j,dx,dy,m,nx,ny; for(j=0;j<n;j++){ dx=(cx[Math.min(n-1,j+1)]-cx[Math.max(0,j-1)])*S; dy=(cy[Math.min(n-1,j+1)]-cy[Math.max(0,j-1)])*K; m=Math.hypot(dx,dy)||1; nx=-dy/m; ny=dx/m; Lp.push([X(cx[j])+nx*hw*K, YY(cy[j])-ny*hw*K]); Rp.push([X(cx[j])-nx*hw*K, YY(cy[j])+ny*hw*K]); }
+    return {L:Lp,R:Rp}; }
+  function drawBand(cx,cy){ var b=band(cx,cy,20), pg=b.L.concat(b.R.slice().reverse()).map(function(p){return f(p[0])+","+f(p[1]);}).join(" ");
+    var pl=function(a){return a.map(function(p){return f(p[0])+","+f(p[1]);}).join(" ");};
+    o.push('<polygon points="'+pg+'" fill="'+th.road+'"/><polyline points="'+pl(b.L)+'" fill="none" stroke="'+th.edge+'" stroke-width="1.4"/><polyline points="'+pl(b.R)+'" fill="none" stroke="'+th.edge+'" stroke-width="1.4"/>'); }
+  var cxA=[],cyA=[],t; for(i=0;i<=40;i++){ t=i/40; cxA.push(-150+150*t); cyA.push(-40-85*(1-t)*(1-t)); }
+  drawBand(cxA,cyA);
+  if(L.exit){ var cxE=[],cyE=[]; for(i=0;i<=40;i++){ t=i/40; cxE.push(L.exit.x1-4+154*t); cyE.push(-40-85*t*t); } drawBand(cxE,cyE); }
+
+  /* markings */
+  var snowMode=env.snow, keep=!snowMode?1:(snowMode==="partial"?0.45:0);
+  function dashes(y,a,b){ var xx=a, s=""; while(xx<b){ if(rand()<keep){ s+='M'+f(X(xx))+','+f(YY(y))+'H'+f(X(Math.min(xx+18,b))); } xx+=48; } if(s) o.push('<path d="'+s+'" stroke="'+th.yel+'" stroke-width="1.6" fill="none"/>'); }
+  if(snowMode!=="full"){
+    var bl=[]; for(i=0;i<=N;i++){ x=XS0+(xmax-XS0)*i/N; bl.push([x,bot(x)]); }
+    o.push('<polyline points="'+pts2(bl)+'" fill="none" stroke="'+th.edge+'" stroke-width="1.5"/>'+line(X(XS0),YY(100),X(xmax),YY(100),th.edge,1.5));
+  }
+  dashes(20,XS0,xmax); dashes(60,XS0,xmax); dashes(-20,0,M.acc-tp); if(L.exit) dashes(-20,L.exit.x0+tp2,L.exit.x1);
+
+  /* snow */
+  if(snowMode){
+    var np=snowMode==="partial"?70:260, px_,py_,w,h;
+    for(i=0;i<np;i++){ px_=XS0+20+rand()*(L.xEnd-XS0-20); py_=bot(px_)+3+rand()*(95-bot(px_)); w=(10+rand()*35)*S*1.2; h=(4+rand()*7)*K;
+      o.push('<ellipse cx="'+f(X(px_))+'" cy="'+f(YY(py_))+'" rx="'+f(w/2)+'" ry="'+f(h/2)+'" fill="#fff" opacity="'+(snowMode==="partial"?0.55:0.6)+'"/>'); }
+    if(snowMode==="full") o.push('<polygon points="'+pts2(road)+'" fill="#e8edf2" opacity=".45"/>');
+    var top=[],bt=[]; for(i=0;i<=N;i++){ x=XS0+(xmax-XS0)*i/N; var nz=12+8*Math.abs(Math.sin(i*0.37)+Math.sin(i*0.11)); top.push([x,100+nz]); bt.push([x,bot(x)-nz]); }
+    var tb=[[XS0,100],[xmax,100]].concat(top.slice().reverse().map(function(p){return [p[0],p[1]];}));
+    o.push('<polygon points="'+pts2([[XS0,100]].concat(top,[[xmax,100]]))+'" fill="#fff" stroke="#b6c3d0" stroke-width=".8"/>');
+    var bb=[]; for(i=0;i<=N;i++){ x=XS0+(xmax-XS0)*i/N; bb.push([x,bot(x)]); }
+    o.push('<polygon points="'+pts2(bb.concat(bt.slice().reverse()))+'" fill="#fff" stroke="#b6c3d0" stroke-width=".8"/>');
+    o.push(text(X(300),YY(109),"Snowbank",{s:10,c:"#44566a",nohalo:true})+text(X(300),YY(-33),"Snowbank",{s:10,c:"#44566a",nohalo:true}));
+  }
+
+  /* lane closure */
+  if(L.closure){
+    var c=L.closure, yc=c.y, a1=yc-20, a2=yc+20, poly=c.dir>0?[[c.cs,a1],[c.cs+c.tl,a2],[c.ce,a2],[c.ce,a1]]:[[c.cs,a2],[c.cs+c.tl,a1],[c.ce,a1],[c.ce,a2]];
+    o.push('<polygon points="'+pts2(poly)+'" fill="url(#hz)" stroke="#fff" stroke-width="1" opacity=".92"/>');
+    for(i=0;i<=10;i++){ var kk=i/10, cy_=c.dir>0?a1+40*kk:a2-40*kk; o.push('<circle cx="'+f(X(c.cs+c.tl*kk))+'" cy="'+f(YY(cy_))+'" r="3.4" fill="#ff6a00" stroke="#fff" stroke-width=".8"/>'); }
+    o.push(text(X((c.cs+c.tl+c.ce)/2+20),YY(yc)+4,"Lane closed",{s:11,w:700,c:th.tc}));
+  }
+
+  /* AV path */
+  var pe=L.exit?L.exit.x1+150:L.xEnd-30, pp=[];
+  for(x=L.startX;x<=pe;x+=6){ var yv=(L.exit&&x>L.exit.x1)?-40-85*Math.pow((x-L.exit.x1)/150,2):pathY(x,L.trans); pp.push([x,yv]); }
+  var samples=pp;
+  o.push('<polyline points="'+pts2(pp)+'" fill="none" stroke="#0b6b2c" stroke-width="2.2" stroke-dasharray="7 4" marker-end="url(#pa)"/>');
+
+  /* vehicles */
+  function veh(x,y,k,lab,below,ghost){
+    var cw=k==="truck"?46:(k==="ev"?36:26), ch=k==="truck"?14:(k==="ev"?14:11), px=X(x)-cw/2, py=YY(y)-ch/2, a=ghost?' opacity=".5"':'', s='<g'+a+'>';
+    if(k==="truck") s+='<rect x="'+f(px)+'" y="'+f(py)+'" width="'+(cw-11)+'" height="'+ch+'" rx="2" fill="#f7f7f7" stroke="#1b1b1b" stroke-width=".9"/><rect x="'+f(px+cw-12)+'" y="'+f(py+1)+'" width="12" height="'+(ch-2)+'" rx="2" fill="#2a5db0" stroke="#1b1b1b" stroke-width=".9"/>';
+    else if(k==="ev") s+='<rect x="'+f(px)+'" y="'+f(py)+'" width="'+cw+'" height="'+ch+'" rx="3" fill="#f7f7f7" stroke="#1b1b1b" stroke-width=".9"/><rect x="'+f(px+cw/2-5)+'" y="'+f(py)+'" width="10" height="'+ch+'" fill="#d62828"/><circle cx="'+f(px+cw/2+5)+'" cy="'+f(py+4)+'" r="2.2" fill="#ff2b2b"/><circle cx="'+f(px+cw/2+5)+'" cy="'+f(py+ch-4)+'" r="2.2" fill="#2b6fff"/>';
+    else s+='<rect x="'+f(px)+'" y="'+f(py)+'" width="'+cw+'" height="'+ch+'" rx="3" fill="'+(k==="av"?"#2e9e4f":"#e8892b")+'" stroke="#1b1b1b" stroke-width=".9"/><rect x="'+f(px+cw-10)+'" y="'+f(py+2)+'" width="5" height="'+(ch-4)+'" fill="#1f2a36" opacity=".8"/>';
+    if(env.theme==="night"&&!ghost) s+='<polygon points="'+f(px+cw)+','+f(py+ch*0.3)+' '+f(px+cw+60)+','+f(py-6)+' '+f(px+cw+60)+','+f(py+ch+6)+' '+f(px+cw)+','+f(py+ch*0.7)+'" fill="#ffe9a0" opacity=".22"/>';
+    s+='</g>';
+    if(lab) s+=text(X(x),below?py+ch+13:py-5,lab,{s:10});
+    return s;
+  }
+  /* other traffic: lane corridors around the AV path leave visible gaps */
+  var fixedV=L.veh.concat(L.ghosts.map(function(g){return {x:g.x,y:g.y};}));
+  var spec=[[1,260,300],[2,150,250],[3,330,290]];
+  spec.forEach(function(sp){
+    var yl=(sp[0]-1)*40, cx=sp[1]+rand()*30;
+    while(cx<L.xEnd-40){
+      var ok=true, j;
+      for(j=0;j<samples.length&&ok;j++){ if(Math.abs(samples[j][0]-cx)<85&&Math.abs(samples[j][1]-yl)<28) ok=false; }
+      for(j=0;j<fixedV.length&&ok;j++){ if(fixedV[j].y===yl&&Math.abs(fixedV[j].x-cx)<90) ok=false; }
+      if(ok&&L.closure&&Math.abs(L.closure.y-yl)<1&&cx>L.closure.cs-30&&cx<L.closure.ce+30) ok=false;
+      if(ok) o.push(veh(cx,yl,"car"));
+      cx+=sp[2]+(rand()-0.5)*50;
+    }
+  });
+  L.veh.forEach(function(v){ o.push(veh(v.x,v.y,v.k,v.lab)); });
+  L.ghosts.forEach(function(g){ o.push(veh(g.x,g.y,"av",g.lab,true,true)); });
+  o.push(veh(L.startX,-40,"av","AV enters at "+fmt(M.v0,0)+" km/h",true));
+
+  if(env.theme==="fog") o.push('<rect x="0" y="0" width="'+f(WID)+'" height="'+f(TOP+(Y1-Y0)*K)+'" fill="#fff" opacity=".5"/>');
+
+  /* dimensions */
+  function dim(x0,x1,y,txt,below){ var ya=YY(y); return line(X(x0),ya,X(x1),ya,th.tc,1.1)+line(X(x0),ya-4,X(x0),ya+4,th.tc,1.1)+line(X(x1),ya-4,X(x1),ya+4,th.tc,1.1)+text((X(x0)+X(x1))/2,below?ya+14:ya-6,txt,{s:11}); }
+  o.push(dim(0,M.acc,-88,"Acceleration lane "+fmt(M.acc,0)+" m (includes "+tp+" m taper)",true));
+  o.push(line(X(M.acc),YY(-62),X(M.acc),YY(142),th.tc,.8,"2 3",.5)+text(X(M.acc),YY(142)-4,"Merge nose ("+fmt(M.acc,0)+" m)",{s:11}));
+  if(L.exit){
+    o.push(dim(L.exit.x0,L.exit.x1,-88,"Deceleration lane "+fmt(M.dec,0)+" m (includes "+tp2+" m taper)",true));
+    o.push(line(X(L.exit.x1),YY(-62),X(L.exit.x1),YY(142),th.tc,.8,"2 3",.5)+text(X(L.exit.x1),YY(142)-4,"Ramp entry, "+fmt(M.v1,0)+" km/h (curve R = "+fmt(M.rad,0)+" m)",{s:11,a:"end"}));
+    o.push(text(X(L.exit.x1+150),YY(-143),"Ramp curve is schematic",{s:10,a:"end",i:true}));
+  }
+  if(L.closure) o.push(dim(L.closure.cs,L.closure.cs+L.closure.tl,142,"Closure taper "+fmt(L.closure.tl,1)+" m",false));
+  L.gaps.forEach(function(g){ o.push(line(X(g.x0),YY(g.y),X(g.x0),YY(-34),th.tc,.8,"2 3",.6)+line(X(g.x1),YY(g.y),X(g.x1),YY(-34),th.tc,.8,"2 3",.6)+dim(g.x0,g.x1,-34,g.txt,true)); });
+
+  /* step bars */
+  L.steps.forEach(function(s,k){ var c=STEP_COLORS[k%STEP_COLORS.length];
+    o.push('<rect x="'+f(X(s.x0))+'" y="'+f(YY(196))+'" width="'+f(Math.max(2,(s.x1-s.x0)*S))+'" height="'+f(15*K+4)+'" fill="'+c+'" stroke="#fff" stroke-width="1.5"/>'+text(X((s.x0+s.x1)/2),YY(196)+(15*K+4)/2+4,String(k+1),{s:12,w:800,c:"#fff",nohalo:true}));
+  });
+
+  /* distance axis */
+  var ay=TOP+(Y1-Y0)*K;
+  o.push(line(PADL,ay,WID-PADR,ay,th.ax,1));
+  var tickStep=S<0.5?200:100;
+  for(x=0;x<=L.xEnd;x+=tickStep) o.push(line(X(x),ay,X(x),ay+5,th.ax,1)+text(X(x),ay+17,String(x),{s:10.5,c:th.ax,nohalo:true}));
+  o.push(text(WID/2,ay+31,"Distance along the highway (m), true scale",{s:11,c:th.ax,nohalo:true}));
+  var exag=LANE_PX/(3.75*S);
+  return {svg:'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+f(WID)+' '+f(H)+'" width="'+f(WID)+'" height="'+f(H)+'" font-family="Figtree,Arial,sans-serif" role="img" aria-label="Top-down diagram of the scenario, drawn to true length">'+o.join("")+'</svg>', exag:exag, w:WID, h:H};
+}
+
+/* ---- numbers for the chosen scenario ---- */
+function scenarioNumbers(M,L,env){
+  var r=[], vt=M.vt, rows=[];
+  function add(k,v,n,rf){ rows.push({k:k,v:v,n:n,r:rf}); }
+  add("Speed limit and AV speed",fmt(M.limit,0)+" km/h","Mainline speeds 100, 110 or 120 km/h",["R2"]);
+  add("Traffic speed",fmt(vt,0)+" km/h",env.winter?"Winter worst case: traffic is slower than the limit":"Same as the limit");
+  add("Time headway of 2 s",fmt(secToM(vt,2),1)+" m","Gap in metres = speed ÷ 3.6 × time. Free-flow headway is at least 2 s.",["R3"]);
+  add("Merge: average acceleration",sg(avgAccel(M.v0,vt,M.acc),2)+" m/s²",fmt(M.v0,0)+" to "+fmt(vt,0)+" km/h over "+fmt(M.acc,0)+" m (constant acceleration)");
+  add("Merge: lead gap, mean",fmt(secToM(vt,3.37),1)+" m (3.37 s)","PoliTO mean, not Ontario data",["R4"]);
+  add("Merge: lag gap, mean",fmt(secToM(vt,1.38),1)+" m (1.38 s)","PoliTO mean, not Ontario data",["R4"]);
+  if(M.mid.some(function(s){return s.type==="lane";})){
+    add("Lane change: lead gap, mean","85.95 m ("+fmt(mToSec(vt,85.95),2)+" s)","PoliTO mean, not Ontario data",["R4"]);
+    add("Lane change: lag gap, mean","46.29 m ("+fmt(mToSec(vt,46.29),2)+" s)","PoliTO mean, not Ontario data",["R4"]);
+  }
+  if(L.closure){
+    add("Closure taper",fmt(L.closure.tl,1)+" m","W × S ÷ 1.6 with W = "+fmt(M.lw,2)+" m, S = "+fmt(M.limit,0)+" km/h. Units of the formula still to be confirmed.");
+    add("Time to drive the taper",fmt(L.closure.tl/toMs(vt),1)+" s","At the traffic speed");
+  }
+  if(M.mid.some(function(s){return s.type==="brake";})){
+    add("Brake test: starting gap",fmt(secToM(vt,2),1)+" m","2 s at the traffic speed");
+    if(M.tr!==null&&M.aav!==null&&M.alead!==null){
+      var need=toMs(vt)*M.tr+brakeDist(vt,M.aav)-brakeDist(vt,M.alead);
+      add("Brake test: gap needed to avoid a collision",fmt(Math.max(0,need),1)+" m","v × t + v² ÷ (2 × AV braking) − v² ÷ (2 × lead braking)");
+    } else add("Brake test: gap needed to avoid a collision","Enter the three braking inputs","Reaction time, AV braking and lead braking are left for you to set");
+  }
+  if(L.exit){
+    add("Exit: average deceleration",sg(avgAccel(vt,M.v1,M.dec),2)+" m/s²",fmt(vt,0)+" to "+fmt(M.v1,0)+" km/h over "+fmt(M.dec,0)+" m");
+    var la=latAccel(M.v1,M.rad);
+    add("Exit: ramp curve at "+fmt(M.v1,0)+" km/h",fmt(la,2)+" m/s² sideways","v² ÷ R with R = "+fmt(M.rad,0)+" m",["R1"]);
+    add("Exit: friction needed on the curve","at least "+fmt(la/G_ACC,2),"Sideways acceleration ÷ 9.81. If winter friction is lower, the AV must go slower than "+fmt(M.v1,0)+" km/h.");
+  }
+  return rows;
+}
+
+/* ============ FREE-FORM SCENARIO DESIGNER (drag and drop) ============ */
+var DS_COL = {geo:"#3b7dd8", env:"#8e5bb5", traf:"#e07b39"};
+var DS_LBL = {geo:"Road geometry", env:"Environment", traf:"Traffic"};
+/* min / ideal / max are the sheet's values; lo / hi only catch typing mistakes */
+var DS_CAT = {
+ onramp: {c:"geo", sk:["acc","gap","sig"], n:"On-ramp (acceleration lane)", len:435, lenHint:{min:435, ideal:500, note:"MTO: 500 m standard, 435 m short (interim). Includes a 90 m taper.", r:["R1"]},
+          params:[{id:"v0", label:"AV speed entering", unit:"km/h", def:40, lo:1, hi:120, eg:"40"}]},
+ offramp:{c:"geo", sk:["slow","lane"], n:"Off-ramp (deceleration lane)", len:345, lenHint:{ideal:345, note:"MTO: 345 m including a 90 m taper, single-lane exit.", r:["R1"]},
+          params:[{id:"rad", label:"Ramp radius", unit:"m", def:130, min:130, ideal:250, lo:20, hi:2000, eg:"130", r:["R1"]},
+                  {id:"v1", label:"AV speed at the ramp entry", unit:"km/h", def:60, lo:1, hi:120, eg:"60"}]},
+ curve:  {c:"geo", sk:["keep","lane"], n:"Horizontal curve", len:400, note:"Drawn straight; the radius is used in the numbers.",
+          params:[{id:"rad", label:"Curve radius", unit:"m", def:1700, min:750, ideal:1700, lo:50, hi:20000, eg:"1700", r:["R1"]}]},
+ crest:  {c:"geo", sk:["keep"], n:"Crest vertical curve", len:300, note:"Drawn flat; K and grade are for the record.",
+          params:[{id:"K", label:"Crest curvature (K)", unit:"", def:100, min:100, lo:1, hi:2000, eg:"100", r:["R1"]},
+                  {id:"grade", label:"Grade", unit:"%", def:3, max:3, lo:0.1, hi:15, eg:"3", r:["R1"]}]},
+ closure:{c:"geo", sk:["lane","gap","sig","haz"], n:"Lane closure (work zone)", len:250, lane:true, laneLbl:"Closed lane", lenLbl:"Closed length after the taper (m)",
+          note:"The taper is added before the closed length."},
+ bridge: {c:"geo", sk:["keep"], n:"Bridge or overpass", len:100, levels:["Overpass above","Underpass below"]},
+ sun:    {c:"env", n:"Sun glare", len:400, levels:["Low sun, facing the sun","Low sun, facing away"]},
+ night:  {c:"env", n:"Night", len:400, levels:["Dark road, no fixed lighting","Dark road, with fixed lighting"]},
+ fog:    {c:"env", n:"Fog", len:400, levels:["Visibility below 20 m","Milder level A (not set in the sheet)","Milder level B (not set in the sheet)"]},
+ rain:   {c:"env", n:"Rain", len:400, levels:["Light","Moderate","Heavy"]},
+ ice:    {c:"env", n:"Low road friction", len:400, levels:["Slush","Packed snow","Ice"],
+          params:[{id:"mu", label:"Friction coefficient (μ)", unit:"", lo:0.02, hi:1, eg:"0.3", hint:"No value in the sheet. Your own input."}]},
+ snowcov:{c:"env", n:"Snow on lane markings", len:400, levels:["Partial cover","Full cover"]},
+ bank:   {c:"env", n:"Snowbanks", len:400, levels:["One side (right)","Both sides"]},
+ free:   {c:"traf", sk:["keep"], n:"Low density, free flow", len:500},
+ mixed:  {c:"traf", sk:["gap","lane"], n:"Moderate mixed traffic", len:500},
+ slow:   {c:"traf", sk:["haz","slow"], n:"Slow or stopped vehicle", pt:true, lane:true, laneLbl:"Lane"},
+ erratic:{c:"traf", sk:["haz","slow","gap"], n:"Lead vehicle brakes hard", pt:true, lane:true, laneLbl:"Lane"},
+ emerg:  {c:"traf", sk:["haz","lane"], n:"Emergency vehicle from behind", pt:true, lane:true, laneLbl:"Lane"}
+};
+var DS_ICON={
+ onramp:'<path d="M0 22H48M0 8H48" stroke="currentColor" stroke-width="2" fill="none" opacity=".5"/><path d="M2 28C16 28 20 22 30 20L46 20" stroke="currentColor" stroke-width="3" fill="none"/>',
+ offramp:'<path d="M0 8H48" stroke="currentColor" stroke-width="2" opacity=".5"/><path d="M2 20L18 20C28 22 32 28 46 28" stroke="currentColor" stroke-width="3" fill="none"/><path d="M0 14H48" stroke="currentColor" stroke-width="2" opacity=".5"/>',
+ curve:'<path d="M2 26C16 26 22 22 26 14S38 4 46 4" stroke="currentColor" stroke-width="4" fill="none"/>',
+ crest:'<path d="M2 26C14 26 18 6 24 6S34 26 46 26" stroke="currentColor" stroke-width="3.5" fill="none"/>',
+ closure:'<rect x="4" y="9" width="40" height="12" fill="currentColor" opacity=".35"/><path d="M4 9L16 21M16 9L28 21M28 9L40 21" stroke="currentColor" stroke-width="2.5"/><path d="M4 26L44 26" stroke="currentColor" stroke-width="2" stroke-dasharray="3 3"/>',
+ bridge:'<path d="M2 12H46" stroke="currentColor" stroke-width="5"/><path d="M8 12V28M40 12V28" stroke="currentColor" stroke-width="3"/><path d="M2 28H46" stroke="currentColor" stroke-width="2" opacity=".5"/>',
+ sun:'<circle cx="24" cy="15" r="6" fill="currentColor"/><path d="M24 2V6M24 24V28M10 15H6M42 15H38M14 5L17 8M34 5L31 8M14 25L17 22M34 25L31 22" stroke="currentColor" stroke-width="2.4"/>',
+ night:'<path d="M30 4A12 12 0 1 0 40 22A10 10 0 0 1 30 4Z" fill="currentColor"/><circle cx="10" cy="8" r="1.8" fill="currentColor"/><circle cx="18" cy="24" r="1.4" fill="currentColor"/>',
+ fog:'<path d="M4 8H36M10 15H44M4 22H34" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" opacity=".9"/>',
+ rain:'<path d="M10 24L14 8M20 26L24 10M30 24L34 8M40 26L44 10" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/>',
+ ice:'<path d="M24 3V27M11 9L37 21M11 21L37 9" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/><circle cx="24" cy="15" r="3" fill="currentColor"/>',
+ snowcov:'<path d="M2 24H48" stroke="currentColor" stroke-width="2.5" stroke-dasharray="7 6" opacity=".5"/><ellipse cx="12" cy="15" rx="8" ry="4" fill="currentColor"/><ellipse cx="34" cy="19" rx="10" ry="4.5" fill="currentColor"/>',
+ bank:'<path d="M2 28C10 8 20 8 26 18S40 12 46 28Z" fill="currentColor"/>',
+ free:'<rect x="3" y="9" width="16" height="9" rx="3" fill="currentColor"/><rect x="29" y="16" width="16" height="9" rx="3" fill="currentColor" opacity=".7"/>',
+ mixed:'<rect x="2" y="4" width="13" height="8" rx="2" fill="currentColor"/><rect x="18" y="12" width="13" height="8" rx="2" fill="currentColor" opacity=".8"/><rect x="2" y="20" width="26" height="8" rx="2" fill="currentColor" opacity=".6"/><rect x="33" y="5" width="13" height="8" rx="2" fill="currentColor" opacity=".8"/>',
+ slow:'<rect x="3" y="9" width="28" height="13" rx="2" fill="currentColor" opacity=".7"/><rect x="33" y="11" width="13" height="11" rx="2" fill="currentColor"/><circle cx="12" cy="24" r="3" fill="currentColor"/><circle cx="38" cy="24" r="3" fill="currentColor"/>',
+ erratic:'<rect x="14" y="8" width="26" height="14" rx="4" fill="currentColor"/><rect x="8" y="9" width="5" height="12" fill="#ff5252"/><path d="M2 10L6 10M2 20L6 20" stroke="#ff5252" stroke-width="2"/>',
+ emerg:'<rect x="4" y="10" width="40" height="14" rx="4" fill="currentColor"/><circle cx="18" cy="6" r="3.5" fill="#ff4d4d"/><circle cx="30" cy="6" r="3.5" fill="#4d8dff"/>'
+};
+/* Pass or fail rows. Only the headway has a sourced limit; every other limit is left for the team to enter. */
+var DS_CRIT=[
+ {id:"acc",  sk:"acc", label:"Speed at the merge nose", unit:"km/h"},
+ {id:"gapa", sk:"gap", label:"Gap accepted when merging or changing lane", unit:"s"},
+ {id:"head", sk:"gap", label:"Time headway kept to the vehicle ahead", unit:"s", fixed:"at least 2", basis:"MTO Level Two handbook: free-flow headway 2 s.", r:["R3"]},
+ {id:"sig",  sk:"sig", label:"Signal given before the lane move", unit:"s"},
+ {id:"keep", sk:"keep",label:"Speed deviation while holding speed", unit:"km/h"},
+ {id:"lane", sk:"lane",label:"Lane position error (offset from lane centre)", unit:"m"},
+ {id:"slow", sk:"slow",label:"Speed at the ramp entry or behind a slow vehicle", unit:"km/h"},
+ {id:"haz",  sk:"haz", label:"Distance kept when reacting to the hazard", unit:"m"},
+ {id:"col",  sk:"haz", label:"Contact with any vehicle or object", unit:"", fixed:"none", basis:"Basic requirement of any test. Not an MTO number."}
+];
+var DS_ORDER = {
+ geo:["onramp","offramp","curve","crest","closure","bridge"],
+ env:["sun","night","fog","rain","ice","snowcov","bank"],
+ traf:["free","mixed","slow","erratic","emerg"]
+};
+var DS_GLOBAL = [
+ {id:"len",   label:"Road length", unit:"m", def:2000, lo:500, hi:10000, eg:"2000", hint:"The length of road drawn, to true scale."},
+ {id:"lanes", label:"Mainline lanes", unit:"", def:3, min:3, lo:1, hi:6, int:true, eg:"3", hint:"MTO: 3 or more lanes.", r:["R1"]},
+ {id:"lw",    label:"Lane width", unit:"m", def:3.75, min:3.5, ideal:3.75, lo:2.5, hi:5, eg:"3.75", hint:"MTO: 3.50 to 3.75 m.", r:["R1"]}
+];
+
+function dsHint(s){
+  var p=[]; function f(n){ return fmt(n,n%1?2:0)+(s.unit?" "+s.unit:""); }
+  if(s.min!==undefined) p.push("min "+f(s.min)); if(s.ideal!==undefined) p.push("ideal "+f(s.ideal)); if(s.max!==undefined) p.push("max "+f(s.max));
+  return (s.hint?s.hint+" ":"")+(p.length?"Sheet: "+p.join(" · ")+".":(s.hint?"":"No value in the sheet. Your own input."));
+}
+function dsNew(){ return {crit:{},len:"2000", lanes:"3", lw:"", limit:110, vt:"", pieces:[], path:[], uid:1, sel:null, draw:false, view:null}; }
+
+/* ---- model: typed values to numbers, with defaults ---- */
+function dsModel(D){
+  var errs={}, warn=[], m={}, c;
+  DS_GLOBAL.forEach(function(g){ c=checkNum(String(D[g.id]===undefined?"":D[g.id]),g); if(c.err) errs[g.id]=c.err; m[g.id]=(c.val!==null&&!c.err)?c.val:g.def; });
+  m.limit=D.limit; c=checkNum(D.vt,{lo:20,hi:130,eg:"90",unit:"km/h"}); if(c.err) errs.vt=c.err; m.vt=(c.val!==null&&!c.err)?c.val:D.limit;
+  m.pieces=D.pieces.map(function(p){
+    var T=DS_CAT[p.type], q={id:p.id,type:p.type,cat:T.c,x:p.x,len:T.pt?0:p.len,lane:Math.min(p.lane||1,m.lanes),lvl:p.lvl||0,p:{}};
+    (T.params||[]).forEach(function(s){ var cc=checkNum((p.p&&p.p[s.id])||"",s); if(cc.err) errs[p.id+":"+s.id]=cc.err; q.p[s.id]=(cc.val!==null&&!cc.err)?cc.val:(s.def!==undefined?s.def:null); });
+    return q;
+  });
+  m.crit=D.crit||{};
+  m.path=D.path.slice().sort(function(a,b){return a.x-b.x;});
+  m.errs=errs;
+  return m;
+}
+function dsOf(m,type){ return m.pieces.filter(function(p){return p.type===type;}); }
+function dsCovers(p,x){ return x>=p.x && x<=p.x+p.len; }
+function laneName(y){ return y<-1?"ramp lane":"lane "+(Math.round(y/40)+1); }
+function dsTrans(m){
+  var t=[], w=m.path, i, a, b, s;
+  for(i=1;i<w.length;i++){ a=w[i-1]; b=w[i]; if(a.y!==b.y){ s=Math.max(a.x,b.x-150); t.push([s,Math.max(s+1,b.x),a.y,b.y]); } }
+  return t;
+}
+function dsEvents(m){
+  var ev=[], w=m.path, i, a, b;
+  for(i=1;i<w.length;i++){ a=w[i-1]; b=w[i];
+    if(a.y!==b.y) ev.push({kind:(a.y<-1&&b.y>=-1)?"merge":((b.y<-1&&a.y>=-1)?"exit":"lane change"),x:b.x,x0:Math.max(a.x,b.x-150),from:laneName(a.y),to:laneName(b.y)});
+  }
+  return ev;
+}
+/* Skills the placed items and path exercise, with the reason for each */
+function dsSkills(m){
+  var r={}, w=m.path, ev=dsEvents(m), i;
+  if(w.length>=2) r.lane="The AV drives a path of "+w.length+" points.";
+  if(ev.some(function(e){return e.kind==="merge";})&&dsOf(m,"onramp").length) r.acc="The path leaves the on-ramp and joins the mainline.";
+  if(ev.some(function(e){return e.kind!=="exit";})) r.gap="The path "+(ev.some(function(e){return e.kind==="merge";})?"merges":"changes lane")+" into traffic.";
+  if(ev.length) r.sig="The path has "+ev.length+" lane move"+(ev.length>1?"s":"")+" that need a signal.";
+  if(w.length>=2){ var tr0=dsTrans(m), edges=[w[0].x], k, best=0; tr0.forEach(function(t){ edges.push(t[0],t[1]); }); edges.push(w[w.length-1].x);
+    for(k=0;k+1<edges.length;k+=2) best=Math.max(best,edges[k+1]-edges[k]);
+    if(best>=300) r.keep="The AV holds its lane and speed for "+fmt(best,0)+" m."; }
+  if(!r.keep&&w.length>=2&&dsOf(m,"curve").length) r.keep="The AV holds its speed through a curve.";
+  if(ev.some(function(e){return e.kind==="exit";})) r.slow="The path leaves by the off-ramp.";
+  else if(dsOf(m,"curve").length) r.slow="The AV drives a curve.";
+  var laneAtX=function(x){ var y=w.length?w[0].y:0, k; for(k=0;k<dsTrans(m).length;k++){ var t=dsTrans(m)[k]; if(x>=t[0]) y=x>=t[1]?t[3]:t[2]; } return Math.round(y/40)+1; };
+  var xr=w.length?[w[0].x,w[w.length-1].x]:[0,-1];
+  m.pieces.forEach(function(p){
+    if(!DS_CAT[p.type].pt) return;
+    if(p.x<xr[0]-50||p.x>xr[1]+300) return;
+    if(p.type==="emerg"||p.lane===laneAtX(p.x)||p.lane===laneAtX(p.x-100)){
+      r.haz=r.haz||(DS_CAT[p.type].n+" at "+fmt(p.x,0)+" m is in the AV's lane or comes up behind it.");
+      if(p.type!=="slow"||true) r.slow=r.slow||("The AV must slow for the "+DS_CAT[p.type].n.toLowerCase()+".");
+    }
+  });
+  dsOf(m,"closure").forEach(function(p){ if(w.length&&p.x<=xr[1]&&p.x+p.len>=xr[0]){ r.haz=r.haz||"A lane closure ahead forces the AV to react."; r.gap=r.gap||"The AV must move over into traffic."; r.sig=r.sig||"The AV must signal to move over."; } });
+  return r;
+}
+function dsWarnings(m){
+  var w=[], sp=function(v,s,label){ if(s.min!==undefined&&v<s.min) w.push(label+": "+fmt(v,v%1?2:0)+(s.unit?" "+s.unit:"")+" is below the sheet minimum ("+fmt(s.min,s.min%1?2:0)+").");
+    if(s.max!==undefined&&v>s.max) w.push(label+": "+fmt(v,v%1?2:0)+(s.unit?" "+s.unit:"")+" is above the sheet maximum ("+fmt(s.max,s.max%1?2:0)+")."); };
+  DS_GLOBAL.forEach(function(g){ sp(m[g.id],g,g.label); });
+  m.pieces.forEach(function(p){
+    var T=DS_CAT[p.type];
+    (T.params||[]).forEach(function(s){ if(p.p[s.id]!==null) sp(p.p[s.id],s,T.n+", "+s.label.toLowerCase()); });
+    if(T.lenHint){ sp(p.len,{min:T.lenHint.min,unit:"m"},T.n+", length"); if(T.lenHint.ideal&&p.len<T.lenHint.ideal&&p.type==="offramp") w.push(T.n+", length: "+fmt(p.len,0)+" m is shorter than the MTO "+fmt(T.lenHint.ideal,0)+" m."); }
+    if(p.x+p.len>m.len) w.push(T.n+" runs past the end of the road.");
+  });
+  m.path.forEach(function(q,i){ if(q.y<-1&&!m.pieces.some(function(p){return (p.type==="onramp"||p.type==="offramp")&&dsCovers(p,q.x);})) w.push("Path point "+(i+1)+" is in the ramp lane at "+fmt(q.x,0)+" m, where there is no ramp."); });
+  dsOf(m,"closure").forEach(function(p){ var tl=taperLen(m.lw,m.limit), yc=(p.lane-1)*40, tr=dsTrans(m);
+    var x, bad=false; for(x=p.x+tl;x<=p.x+tl+p.len&&!bad;x+=20){ var y=m.path.length?m.path[0].y:0, k; for(k=0;k<tr.length;k++){ var t=tr[k]; if(x>=t[0]) y=x>=t[1]?t[3]:t[2]; } if(m.path.length&&x>=m.path[0].x&&x<=m.path[m.path.length-1].x&&Math.abs(y-yc)<20) bad=true; }
+    if(bad) w.push("The AV path passes through the closed lane (lane "+p.lane+") at "+fmt(p.x,0)+" m.");
+  });
+  return w;
+}
+/* live feedback for one field of one item. Returns {t:"ok"|"warn"|"info",msg} or null */
+function dsFeedback(m,p,key){
+  var T=DS_CAT[p.type], u=function(v,x){ return fmt(v,v%1?2:0)+(x?" "+x:""); }, vt=m.vt;
+  if(["rad","v0","v1","mu","K","grade"].indexOf(key)>=0&&!(T.params||[]).some(function(q){return q.id===key;})) return null;
+  if(key==="len"&&T.lenHint){
+    var h=T.lenHint, L=p.len;
+    if(p.type==="onramp") return L<h.min?{t:"warn",msg:"Shorter than the "+u(h.min,"m")+" interim minimum."}:L<h.ideal?{t:"info",msg:"Short lane: meets the interim "+u(h.min,"m")+", below the "+u(h.ideal,"m")+" standard. Average acceleration to reach "+fmt(vt,0)+" km/h is "+fmt(avgAccel(p.p.v0,vt,L),2)+" m/s²."}:{t:"ok",msg:"Meets the "+u(h.ideal,"m")+" standard. Average acceleration to reach "+fmt(vt,0)+" km/h is "+fmt(avgAccel(p.p.v0,vt,L),2)+" m/s²."};
+    if(p.type==="offramp") return L<h.ideal?{t:"warn",msg:"Shorter than the MTO "+u(h.ideal,"m")+". Deceleration from "+fmt(vt,0)+" to "+fmt(p.p.v1,0)+" km/h would be "+fmt(Math.abs(avgAccel(vt,p.p.v1,L)),2)+" m/s²."}:{t:"ok",msg:"Meets the MTO "+u(h.ideal,"m")+". Deceleration from "+fmt(vt,0)+" to "+fmt(p.p.v1,0)+" km/h is "+fmt(Math.abs(avgAccel(vt,p.p.v1,L)),2)+" m/s²."};
+  }
+  if(key==="len"&&p.type==="closure"){ var tl=taperLen(m.lw,m.limit); return {t:"info",msg:"Taper "+u(tl,"m")+" + closed "+u(p.len,"m")+" = "+u(tl+p.len,"m")+" in total."}; }
+  if(key==="len"||key==="x"){ var end=p.x+(key==="len"&&p.type==="closure"?taperLen(m.lw,m.limit):0)+p.len; return end>m.len?{t:"warn",msg:"Runs past the end of the road ("+u(m.len,"m")+")."}:null; }
+  if(key==="rad"){ var sp=p.type==="offramp"?p.p.v1:vt, la=latAccel(sp,p.p.rad), need=la/G_ACC, sh=DS_CAT[p.type].params.filter(function(q){return q.id==="rad";})[0], bad=sh.min!==undefined&&p.p.rad<sh.min;
+    var ice=dsOf(m,"ice").filter(function(q){return q.p.mu;})[0], msg="At "+fmt(sp,0)+" km/h: sideways acceleration "+fmt(la,2)+" m/s², friction needed at least "+fmt(need,2)+".";
+    if(ice&&ice.p.mu<need) msg+=" Your low-friction zone (μ = "+fmt(ice.p.mu,2)+") is lower, so the AV must go slower.";
+    return {t:bad?"warn":(ice&&ice.p.mu<need?"warn":"ok"),msg:(bad?"Below the sheet minimum "+u(sh.min,"m")+". ":"")+msg}; }
+  if(key==="v0"||key==="v1") return {t:"info",msg:key==="v0"?"Needs "+fmt(avgAccel(p.p.v0,vt,p.len),2)+" m/s² on average to reach "+fmt(vt,0)+" km/h in "+fmt(p.len,0)+" m.":"Decelerates at "+fmt(Math.abs(avgAccel(vt,p.p.v1,p.len)),2)+" m/s² on average over "+fmt(p.len,0)+" m."};
+  if(key==="mu"){ if(!p.p.mu) return {t:"info",msg:"Enter μ to see the braking distance."}; return {t:p.p.mu<0.3?"warn":"info",msg:"Braking distance from "+fmt(vt,0)+" km/h: "+fmt(brakeDist(vt,p.p.mu*G_ACC),1)+" m (dry road, μ about 0.8, would be "+fmt(brakeDist(vt,0.8*G_ACC),1)+" m)."}; }
+  if(key==="K"||key==="grade"){ var sh2=T.params.filter(function(q){return q.id===key;})[0], v=p.p[key]; if(sh2.min!==undefined) return v<sh2.min?{t:"warn",msg:"Below the sheet minimum "+u(sh2.min)+"."}:{t:"ok",msg:"Meets the sheet minimum "+u(sh2.min)+"."}; if(sh2.max!==undefined) return v>sh2.max?{t:"warn",msg:"Above the sheet maximum "+u(sh2.max)+"."}:{t:"ok",msg:"Within the sheet maximum "+u(sh2.max)+"."}; }
+  return null;
+}
+function dsCrit(m,sk,val){
+  return DS_CRIT.filter(function(c){ return sk[c.sk]; }).map(function(c){ var v=c.fixed?c.fixed:(val&&val[c.id]||""); return {id:c.id,label:c.label,unit:c.unit,fixed:c.fixed,basis:c.basis,r:c.r,val:v,set:!!v}; });
+}
+function dsNumbers(m){
+  var r=[], vt=m.vt, ev=dsEvents(m);
+  function add(k,v,n,rf){ r.push({k:k,v:v,n:n,r:rf}); }
+  add("Speed limit and traffic speed",fmt(m.limit,0)+" km/h and "+fmt(vt,0)+" km/h","Mainline speeds 100, 110 or 120 km/h",["R2"]);
+  add("Time headway of 2 s",fmt(secToM(vt,2),1)+" m","Gap in metres = speed ÷ 3.6 × time. Free-flow headway is at least 2 s.",["R3"]);
+  ev.forEach(function(e){
+    if(e.kind==="merge"){
+      var rp=dsOf(m,"onramp")[0];
+      if(rp) add("Merge at "+fmt(e.x,0)+" m: average acceleration",sg(avgAccel(rp.p.v0,vt,rp.len),2)+" m/s²",fmt(rp.p.v0,0)+" to "+fmt(vt,0)+" km/h over "+fmt(rp.len,0)+" m (constant acceleration)");
+      add("Merge at "+fmt(e.x,0)+" m: lead and lag gap, mean",fmt(secToM(vt,3.37),1)+" m and "+fmt(secToM(vt,1.38),1)+" m","3.37 s and 1.38 s. PoliTO means, not Ontario data",["R4"]);
+    } else if(e.kind==="lane change"){
+      add("Lane change at "+fmt(e.x,0)+" m: lead and lag gap, mean","85.95 m and 46.29 m","PoliTO means, not Ontario data. At "+fmt(vt,0)+" km/h: "+fmt(mToSec(vt,85.95),2)+" s and "+fmt(mToSec(vt,46.29),2)+" s",["R4"]);
+    } else {
+      var op=dsOf(m,"offramp")[0];
+      if(op){
+        var la=latAccel(op.p.v1,op.p.rad);
+        add("Exit at "+fmt(e.x,0)+" m: average deceleration",sg(avgAccel(vt,op.p.v1,op.len),2)+" m/s²",fmt(vt,0)+" to "+fmt(op.p.v1,0)+" km/h over "+fmt(op.len,0)+" m");
+        add("Exit ramp curve at "+fmt(op.p.v1,0)+" km/h",fmt(la,2)+" m/s² sideways","v² ÷ R with R = "+fmt(op.p.rad,0)+" m",["R1"]);
+        add("Exit: friction needed on the curve","at least "+fmt(la/G_ACC,2),"Sideways acceleration ÷ 9.81. If the road has lower friction, the AV must go slower.");
+      }
+    }
+  });
+  dsOf(m,"curve").forEach(function(p){ var la=latAccel(vt,p.p.rad); add("Curve at "+fmt(p.x,0)+" m: sideways acceleration",fmt(la,2)+" m/s²","v² ÷ R at "+fmt(vt,0)+" km/h with R = "+fmt(p.p.rad,0)+" m. Friction needed at least "+fmt(la/G_ACC,2)+".",["R1"]); });
+  dsOf(m,"closure").forEach(function(p){ var tl=taperLen(m.lw,m.limit); add("Lane closure at "+fmt(p.x,0)+" m: taper",fmt(tl,1)+" m","W × S ÷ 1.6 with W = "+fmt(m.lw,2)+" m, S = "+fmt(m.limit,0)+" km/h. Units of the formula still to be confirmed. Driven in "+fmt(tl/toMs(vt),1)+" s at "+fmt(vt,0)+" km/h."); });
+  dsOf(m,"erratic").forEach(function(p){ add("Hard-braking lead vehicle at "+fmt(p.x,0)+" m: starting gap",fmt(secToM(vt,2),1)+" m","2 s at the traffic speed. Its braking is to be set by MTO."); });
+  dsOf(m,"ice").forEach(function(p){ if(p.p.mu) add("Low friction at "+fmt(p.x,0)+" m: braking distance",fmt(brakeDist(vt,p.p.mu*G_ACC),1)+" m","v² ÷ (2 × μ × 9.81) with μ = "+fmt(p.p.mu,2)+" at "+fmt(vt,0)+" km/h"); else add("Low friction at "+fmt(p.x,0)+" m","Enter μ to see braking distance","No friction value in the sheet"); });
+  return r;
+}
+function dsPrompt(m){
+  var L=[], sk=dsSkills(m), ev=dsEvents(m);
+  L.push("Highway: "+fmt(m.len,0)+" m long, "+m.lanes+" mainline lanes, lane width "+fmt(m.lw,2)+" m, speed limit "+m.limit+" km/h, traffic speed "+fmt(m.vt,0)+" km/h. Distances are measured from the start of the road.");
+  m.pieces.slice().sort(function(a,b){return a.x-b.x;}).forEach(function(p){
+    var T=DS_CAT[p.type], s=DS_LBL[p.cat]+": "+T.n+" from "+fmt(p.x,0)+" m"+(T.pt?"":" to "+fmt(p.x+p.len,0)+" m");
+    if(T.levels) s+=", level: "+T.levels[p.lvl]; if(T.lane) s+=", lane "+p.lane;
+    Object.keys(p.p).forEach(function(k){ if(p.p[k]!==null) s+=", "+k+" = "+p.p[k]; });
+    L.push(s+".");
+  });
+  L.push(m.path.length?"AV path (distance, lane): "+m.path.map(function(q){return fmt(q.x,0)+" m, "+laneName(q.y);}).join("; ")+".":"No AV path has been drawn.");
+  if(ev.length) L.push("Lane moves on the path: "+ev.map(function(e){return e.kind+" from "+e.from+" to "+e.to+" at "+fmt(e.x,0)+" m";}).join("; ")+".");
+  L.push("Calculated numbers: "+dsNumbers(m).map(function(x){return x.k+" = "+x.v;}).join("; ")+".");
+  L.push("Pass or fail limits entered by the user: "+(dsCrit(m,sk,m.crit).filter(function(c){return c.set;}).map(function(c){return c.label+": "+c.val+(c.unit?" "+c.unit:"");}).join("; ")||"none")+". Limits not entered are not set yet; do not invent them.");
+  L.push("The tool's own skill check found: "+(Object.keys(sk).length?SKILL_ORDER.filter(function(k){return sk[k];}).map(function(k){return SKILL_NAME[k]+" ("+sk[k]+")";}).join("; "):"none yet")+".");
+  return "You are helping a transportation engineering PhD student describe a highway test scenario for an automated vehicle (AV) on an Ontario highway.\n"+
+    "Use only the facts below. Do not invent numbers, standards or sources. If a value is missing, say that it is missing.\n"+
+    "Write in simple, professional English. Use these four headings: What happens (3 to 5 sentences); Skills tested (choose only from: "+SKILL_ORDER.map(function(k){return SKILL_NAME[k];}).join(", ")+"; one line each on why); Why it matters (2 to 3 sentences); Values still needed (a short list).\n\n"+
+    "Scenario facts:\n"+L.join("\n");
+}
+function geminiDescribe(key,model,prompt){
+  var ctl=new AbortController(), to=setTimeout(function(){ctl.abort();},40000);
+  return fetch("https://generativelanguage.googleapis.com/v1beta/models/"+encodeURIComponent(model)+":generateContent",
+    {method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":key},body:JSON.stringify({contents:[{parts:[{text:prompt}]}]}),signal:ctl.signal})
+  .then(function(r){ clearTimeout(to); return r.json().then(function(j){ return {ok:r.ok,status:r.status,j:j}; },function(){ return {ok:r.ok,status:r.status,j:{}}; }); })
+  .then(function(x){
+    if(!x.ok){ var msg=(x.j&&x.j.error&&x.j.error.message)||""; throw new Error(x.status===400||x.status===403?"Gemini refused the request. Check the API key and the model name. "+msg:x.status===429?"Gemini says the quota is used up. Wait a minute or check your plan.":"Gemini returned an error ("+x.status+"). "+msg); }
+    var c=x.j.candidates&&x.j.candidates[0], t=c&&c.content&&c.content.parts&&c.content.parts.map(function(p){return p.text||"";}).join("");
+    if(!t) throw new Error("Gemini sent no text back. It may have blocked the answer. Try again.");
+    return t;
+  },function(e){ clearTimeout(to); throw new Error(e.name==="AbortError"?"Gemini took too long. Try again.":"Could not reach Gemini. Check the internet connection."); });
+}
+
+/* ---- drawing ---- */
+function dsSVG(m,W,sel,drawMode){
+  var TOP, th=THEMES.day, XS0=-150, xr=m.len+170, PADL=10, PADR=14, S=Math.max(0.4,(W-PADL-PADR)/xr), K=26/40;
+  var Ytop=(m.lanes-1)*40+20, Y1=Ytop+34, Y0=-135, roadH=(Y1-Y0)*K, f=function(n){return Math.round(n*10)/10;};
+  var X=function(mm){return PADL+(mm-XS0)*S;}, YY=function(d){return TOP+(Y1-d)*K;}, WID=PADL+PADR+xr*S, o=[], i, x;
+  var text=function(px,py,s,opt){ opt=opt||{}; return '<text x="'+f(px)+'" y="'+f(py)+'" text-anchor="'+(opt.a||"middle")+'" font-size="'+(opt.s||11)+'" fill="'+(opt.c||th.tc)+'"'+(opt.w?' font-weight="'+opt.w+'"':'')+' style="paint-order:stroke;stroke:'+(opt.nohalo?'none':'#fff')+';stroke-width:3px;stroke-linejoin:round;pointer-events:none">'+esc(s)+'</text>'; };
+  var line=function(x1,y1,x2,y2,c,w,dash,op){ return '<line x1="'+f(x1)+'" y1="'+f(y1)+'" x2="'+f(x2)+'" y2="'+f(y2)+'" stroke="'+c+'" stroke-width="'+w+'"'+(dash?' stroke-dasharray="'+dash+'"':'')+(op?' opacity="'+op+'"':'')+' style="pointer-events:none"/>'; };
+  var pts2=function(a){ return a.map(function(p){return f(X(p[0]))+","+f(YY(p[1]));}).join(" "); };
+  var zones=function(type){ return m.pieces.filter(function(p){return p.type===type;}); };
+
+  /* name tags above the road: one per zone, stacked in rows so none overlap */
+  var tagW=function(p){ return 30+6.4*DS_CAT[p.type].n.length; }, tagRow={}, rowEnd=[], zp=m.pieces.filter(function(p){return !DS_CAT[p.type].pt;}).sort(function(a,b){return a.x-b.x;});
+  zp.forEach(function(p){ var r=0, px=Math.max(PADL,X(p.x)); while(rowEnd[r]!==undefined&&rowEnd[r]>px-4) r++; rowEnd[r]=px+tagW(p); tagRow[p.id]=r; });
+  var TAGH=rowEnd.length?rowEnd.length*22+4:0; TOP=6+TAGH;
+  var axisY=TOP+roadH, H=axisY+40;
+  o.push('<rect width="'+f(WID)+'" height="'+f(H)+'" fill="#fff"/><rect width="'+f(WID)+'" height="'+f(roadH)+'" fill="'+th.bg+'"/>');
+  o.push('<defs><clipPath id="cp"><rect x="0" y="0" width="'+f(WID)+'" height="'+f(roadH)+'"/></clipPath><marker id="pa" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#0b6b2c"/></marker><pattern id="hz" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8" height="8" fill="#f08a24"/><rect width="4" height="8" fill="#fff" opacity=".85"/></pattern><pattern id="rn" width="9" height="14" patternUnits="userSpaceOnUse" patternTransform="rotate(18)"><line x1="2" y1="0" x2="2" y2="7" stroke="#3b6ea8" stroke-width="1.3"/></pattern></defs><g clip-path="url(#cp)">');
+
+  /* road */
+  var ramps=m.pieces.filter(function(p){return p.type==="onramp"||p.type==="offramp";}).sort(function(a,b){return a.x-b.x;});
+  var edge=[[-400,-20]];
+  ramps.forEach(function(p){ var tp=Math.min(90,p.len);
+    if(p.type==="onramp") edge.push([p.x-0.01,-20],[p.x,-60],[p.x+p.len-tp,-60],[p.x+p.len,-20]);
+    else edge.push([p.x,-20],[p.x+tp,-60],[p.x+p.len,-60],[p.x+p.len+0.01,-20]); });
+  edge.push([m.len+600,-20]);
+  edge.sort(function(a,b){return a[0]-b[0];});
+  var bot=function(xx){ for(var k=1;k<edge.length;k++){ if(xx<=edge[k][0]){ var a=edge[k-1],b=edge[k]; return b[0]===a[0]?b[1]:a[1]+(b[1]-a[1])*(xx-a[0])/(b[0]-a[0]); } } return -20; };
+  var xmax=XS0+xr, N=Math.ceil(xr/4), road=[[XS0,Ytop],[xmax,Ytop]];
+  for(i=N;i>=0;i--){ x=XS0+(xmax-XS0)*i/N; road.push([x,bot(x)]); }
+  o.push('<polygon points="'+pts2(road)+'" fill="'+th.road+'"/>');
+  function band(cx,cy){ var Lp=[],Rp=[],n=cx.length,j,dx,dy,mm,nx,ny; for(j=0;j<n;j++){ dx=(cx[Math.min(n-1,j+1)]-cx[Math.max(0,j-1)])*S; dy=(cy[Math.min(n-1,j+1)]-cy[Math.max(0,j-1)])*K; mm=Math.hypot(dx,dy)||1; nx=-dy/mm; ny=dx/mm; Lp.push([X(cx[j])+nx*20*K,YY(cy[j])-ny*20*K]); Rp.push([X(cx[j])-nx*20*K,YY(cy[j])+ny*20*K]); }
+    var pl=function(a){return a.map(function(p){return f(p[0])+","+f(p[1]);}).join(" ");};
+    return '<polygon points="'+pl(Lp.concat(Rp.slice().reverse()))+'" fill="'+th.road+'"/><polyline points="'+pl(Lp)+'" fill="none" stroke="'+th.edge+'" stroke-width="1.4"/><polyline points="'+pl(Rp)+'" fill="none" stroke="'+th.edge+'" stroke-width="1.4"/>'; }
+  ramps.forEach(function(p){ var cx=[],cy=[],t;
+    if(p.type==="onramp"){ for(i=0;i<=30;i++){ t=i/30; cx.push(p.x-150+150*t); cy.push(-40-85*(1-t)*(1-t)); } }
+    else { for(i=0;i<=30;i++){ t=i/30; cx.push(p.x+p.len-4+154*t); cy.push(-40-85*t*t); } }
+    o.push(band(cx,cy)); });
+
+  /* markings (snow can hide them) */
+  var snow=zones("snowcov");
+  var keepAt=function(xx){ for(var k=0;k<snow.length;k++){ if(dsCovers(snow[k],xx)) return snow[k].lvl===1?0:0.45; } return 1; };
+  var rnd=rng32(5), mk="";
+  for(var yb=1;yb<m.lanes;yb++){ var ym=-20+40*yb; for(x=XS0;x<xmax;x+=48){ if(rnd()<keepAt(x)) mk+='M'+f(X(x))+','+f(YY(ym))+'H'+f(X(x+18)); } }
+  ramps.forEach(function(p){ var a=p.type==="onramp"?p.x:p.x+90, b=p.type==="onramp"?p.x+p.len-90:p.x+p.len; for(x=a;x<b;x+=48){ if(rnd()<keepAt(x)) mk+='M'+f(X(x))+','+f(YY(-20))+'H'+f(X(Math.min(x+18,b))); } });
+  o.push('<path d="'+mk+'" stroke="'+th.yel+'" stroke-width="1.6" fill="none"/>');
+  var bl=[]; for(i=0;i<=N;i++){ x=XS0+(xmax-XS0)*i/N; bl.push([x,bot(x)]); }
+  o.push('<polyline points="'+pts2(bl)+'" fill="none" stroke="'+th.edge+'" stroke-width="1.5"/>'+line(X(XS0),YY(Ytop),X(xmax),YY(Ytop),th.edge,1.5));
+
+  /* geometry markers */
+  zones("curve").forEach(function(p){ o.push('<rect x="'+f(X(p.x))+'" y="'+f(YY(Ytop))+'" width="'+f(p.len*S)+'" height="'+f((Ytop+20)*K)+'" fill="#3b7dd8" opacity=".12" style="pointer-events:none"/>'+text(X(p.x+p.len/2),YY(Ytop)+14,"Curve R = "+fmt(p.p.rad,0)+" m",{s:10.5})); });
+  zones("crest").forEach(function(p){ o.push('<rect x="'+f(X(p.x))+'" y="'+f(YY(Ytop))+'" width="'+f(p.len*S)+'" height="'+f((Ytop+20)*K)+'" fill="#3b7dd8" opacity=".12" style="pointer-events:none"/>'+text(X(p.x+p.len/2),YY(Ytop)+14,"Crest K = "+fmt(p.p.K,0),{s:10.5})); });
+  zones("curve").concat(zones("crest")).forEach(function(p){ o.push('<svg x="'+f(X(p.x+p.len/2)-26)+'" y="'+f(YY(Ytop)+(Ytop+20)*K/2-8)+'" width="52" height="32" viewBox="0 0 48 30" style="color:#1d2630;pointer-events:none;overflow:visible"><g style="filter:drop-shadow(0 0 2px #fff)">'+DS_ICON[p.type]+'</g></svg>'); });
+  zones("bridge").forEach(function(p){ o.push('<rect x="'+f(X(p.x))+'" y="'+f(YY(Ytop)-3)+'" width="'+f(p.len*S)+'" height="'+f((Ytop+20)*K+6)+'" fill="none" stroke="#222" stroke-width="3" opacity=".55" style="pointer-events:none"/>'+text(X(p.x+p.len/2),YY(Ytop)-8,p.lvl?"Underpass":"Overpass",{s:10.5})); });
+  zones("closure").forEach(function(p){
+    var tl=taperLen(m.lw,m.limit), yc=(p.lane-1)*40, d=p.lane<m.lanes?1:-1, a1=yc-20, a2=yc+20, ce=p.x+tl+p.len;
+    var poly=d>0?[[p.x,a1],[p.x+tl,a2],[ce,a2],[ce,a1]]:[[p.x,a2],[p.x+tl,a1],[ce,a1],[ce,a2]];
+    o.push('<polygon points="'+pts2(poly)+'" fill="url(#hz)" stroke="#fff" stroke-width="1" opacity=".92" style="pointer-events:none"/>');
+    for(i=0;i<=10;i++){ var kk=i/10; o.push('<circle cx="'+f(X(p.x+tl*kk))+'" cy="'+f(YY(d>0?a1+40*kk:a2-40*kk))+'" r="3.2" fill="#ff6a00" stroke="#fff" stroke-width=".8" style="pointer-events:none"/>'); }
+    o.push(text(X((p.x+tl+ce)/2),YY(yc)+4,"Lane closed",{s:10.5,w:700,c:"#222"}));
+  });
+
+  /* environment zones */
+  var sn=function(p,y0,y1){ return '<rect x="'+f(X(p.x))+'" y="'+f(YY(y1))+'" width="'+f(p.len*S)+'" height="'+f((y1-y0)*K)+'"'; };
+  m.pieces.filter(function(p){return p.cat==="env";}).forEach(function(p){
+    var T=DS_CAT[p.type], lab=T.n+": "+T.levels[p.lvl].replace(/ \(not set in the sheet\)/,""), ov="";
+    if(p.type==="fog") ov=sn(p,-135,Y1)+' fill="#fff" opacity="'+[.75,.55,.35][p.lvl]+'"/>';
+    else if(p.type==="night") ov=sn(p,-135,Y1)+' fill="#0a1222" opacity="'+(p.lvl?.4:.6)+'"/>';
+    else if(p.type==="sun") ov='<defs><linearGradient id="sg'+p.id+'" x1="0" x2="1"><stop offset="0" stop-color="#ffd24a" stop-opacity="'+(p.lvl?.25:.6)+'"/><stop offset="1" stop-color="#ffd24a" stop-opacity="0"/></linearGradient></defs>'+sn(p,-135,Y1)+' fill="url(#sg'+p.id+')"/><circle cx="'+f(X(p.x)+14)+'" cy="'+f(YY(Y1)+12)+'" r="8" fill="#ffb300" stroke="#fff"/>';
+    else if(p.type==="rain") ov=sn(p,-135,Y1)+' fill="url(#rn)" opacity="'+[.3,.5,.75][p.lvl]+'"/>';
+    else if(p.type==="ice") ov=sn(p,-135,Y1)+' fill="#8fc8ff" opacity="'+[.22,.3,.4][p.lvl]+'"/>';
+    else if(p.type==="snowcov"){ var rr=rng32(p.id*17+3), np=Math.round(p.len/12*(p.lvl?3:1)), k2; for(k2=0;k2<np;k2++){ var px_=p.x+rr()*p.len, py_=-15+rr()*(Ytop+10); ov+='<ellipse cx="'+f(X(px_))+'" cy="'+f(YY(py_))+'" rx="'+f((8+rr()*20)*S)+'" ry="'+f(2+rr()*3)+'" fill="#fff" opacity="'+(p.lvl?.7:.55)+'"/>'; } if(p.lvl) ov+=sn(p,-20,Ytop)+' fill="#e8edf2" opacity=".45"/>'; }
+    else if(p.type==="bank"){ var rb=rng32(p.id*7+1), a=[],b=[]; for(i=0;i<=20;i++){ x=p.x+p.len*i/20; var nz=10+rb()*14; a.push([x,bot(x)-nz]); b.push([x,bot(x)]); }
+      ov='<polygon points="'+pts2(b.concat(a.slice().reverse()))+'" fill="#fff" stroke="#b6c3d0" stroke-width=".8"/>';
+      if(p.lvl){ var a2=[],b2=[]; for(i=0;i<=20;i++){ x=p.x+p.len*i/20; var nz2=10+rb()*14; a2.push([x,Ytop+nz2]); b2.push([x,Ytop]); } ov+='<polygon points="'+pts2(b2.concat(a2.slice().reverse()))+'" fill="#fff" stroke="#b6c3d0" stroke-width=".8"/>'; } }
+    o.push('<g style="pointer-events:none">'+ov+'</g>');
+    if(p.type!=="bank"&&p.type!=="snowcov") o.push(text(X(p.x+p.len/2),YY(Ytop)-4+(p.type==="ice"?0:0),lab,{s:10.5,c:"#222"}));
+  });
+
+  /* traffic */
+  function veh(xx,yy,k,lab,below,ghost){
+    var cw=k==="truck"?46:(k==="ev"?36:26), ch=k==="truck"?14:11, px=X(xx)-cw/2, py=YY(yy)-ch/2, s='<g'+(ghost?' opacity=".5"':'')+' style="pointer-events:none">';
+    if(k==="truck") s+='<rect x="'+f(px)+'" y="'+f(py)+'" width="'+(cw-11)+'" height="'+ch+'" rx="2" fill="#f7f7f7" stroke="#1b1b1b" stroke-width=".9"/><rect x="'+f(px+cw-12)+'" y="'+f(py+1)+'" width="12" height="'+(ch-2)+'" rx="2" fill="#2a5db0" stroke="#1b1b1b" stroke-width=".9"/>';
+    else if(k==="ev") s+='<rect x="'+f(px)+'" y="'+f(py)+'" width="'+cw+'" height="'+ch+'" rx="3" fill="#f7f7f7" stroke="#1b1b1b" stroke-width=".9"/><rect x="'+f(px+cw/2-5)+'" y="'+f(py)+'" width="10" height="'+ch+'" fill="#d62828"/><circle cx="'+f(px+cw/2+5)+'" cy="'+f(py+3.5)+'" r="2" fill="#ff2b2b"/><circle cx="'+f(px+cw/2+5)+'" cy="'+f(py+ch-3.5)+'" r="2" fill="#2b6fff"/>';
+    else s+='<rect x="'+f(px)+'" y="'+f(py)+'" width="'+cw+'" height="'+ch+'" rx="3" fill="'+(k==="av"?"#2e9e4f":"#e8892b")+'" stroke="#1b1b1b" stroke-width=".9"/><rect x="'+f(px+cw-10)+'" y="'+f(py+2)+'" width="5" height="'+(ch-4)+'" fill="#1f2a36" opacity=".8"/>'+(k==="brk"?'<rect x="'+f(px)+'" y="'+f(py+1)+'" width="3" height="'+(ch-2)+'" fill="#e11"/>':'');
+    s+='</g>'; if(lab) s+=text(X(xx),below?py+ch+13:py-5,lab,{s:10}); return s;
+  }
+  var tz=m.pieces.filter(function(p){return p.type==="free"||p.type==="mixed";}), rt=rng32(9);
+  tz.forEach(function(p){
+    o.push('<rect x="'+f(X(p.x))+'" y="'+f(YY(Ytop)+(Ytop+20)*K-3)+'" width="'+f(p.len*S)+'" height="3" fill="'+DS_COL.traf+'" opacity=".8" style="pointer-events:none"/>');
+    var sp=p.type==="mixed"?[[1,230],[2,200],[3,260],[4,240],[5,260],[6,260]]:[[1,520],[2,420],[3,560],[4,500],[5,500],[6,500]];
+    sp.forEach(function(q){ if(q[0]>m.lanes) return; var cx=p.x+40+rt()*q[1]*0.6; while(cx<p.x+p.len-20){ o.push(veh(cx,(q[0]-1)*40,"car")); cx+=q[1]*(0.8+rt()*0.4); } });
+  });
+  m.pieces.forEach(function(p){
+    if(p.type==="slow") o.push(veh(p.x,(p.lane-1)*40,"truck","Slow or stopped vehicle"));
+    if(p.type==="erratic") o.push(veh(p.x,(p.lane-1)*40,"brk","Lead vehicle brakes hard"));
+    if(p.type==="emerg") o.push(veh(p.x,(p.lane-1)*40,"ev","Emergency vehicle"));
+  });
+
+  /* click target for drawing the path */
+  o.push('<rect data-road="1" x="0" y="0" width="'+f(WID)+'" height="'+f(roadH)+'" fill="transparent" style="cursor:'+(drawMode?'crosshair':'default')+'"/>');
+  /* grab areas: drag a drawn item itself to move it; its right edge resizes it. Off while drawing the path. */
+  if(!drawMode) m.pieces.forEach(function(p){
+    var T=DS_CAT[p.type], isC=p.type==="closure", col=DS_COL[T.c], sl=p.id===sel;
+    if(T.pt){ o.push('<circle data-pid="'+p.id+'" data-act="move" cx="'+f(X(p.x))+'" cy="'+f(YY((p.lane-1)*40))+'" r="17" fill="'+col+'" fill-opacity=".12" stroke="'+col+'" stroke-width="'+(sl?2.5:1)+'" stroke-dasharray="4 3" style="cursor:grab"/>'); return; }
+    var wd=(isC?taperLen(m.lw,m.limit)+p.len:p.len)*S, y0=isC?YY((p.lane-1)*40+20):YY(Ytop), hh=(isC?40:Ytop+60)*K;
+    o.push('<rect data-pid="'+p.id+'" data-act="move" x="'+f(X(p.x))+'" y="'+f(y0)+'" width="'+f(wd)+'" height="'+f(hh)+'" fill="'+col+'" fill-opacity="0.001" stroke="'+col+'" stroke-opacity="'+(sl?1:.55)+'" stroke-width="'+(sl?2:1)+'" stroke-dasharray="6 4" style="cursor:grab"/>'+
+      '<rect data-pid="'+p.id+'" data-act="resize" x="'+f(X(p.x)+wd-8)+'" y="'+f(y0)+'" width="16" height="'+f(hh)+'" fill="#fff" fill-opacity="0.001" style="cursor:ew-resize"/>'+
+      '<rect x="'+f(X(p.x)+wd-3)+'" y="'+f(y0+hh/2-12)+'" width="6" height="24" rx="3" fill="'+col+'" stroke="#fff" stroke-width="1.2" style="pointer-events:none"/>');
+  });
+
+  /* AV path */
+  var w=m.path;
+  if(w.length){
+    var tr=dsTrans(m), pp=[], x0=w[0].x, x1=w[w.length-1].x, yv, k3;
+    for(x=x0;x<=x1;x+=5){ yv=w[0].y; for(k3=0;k3<tr.length;k3++){ var t=tr[k3]; if(x>=t[0]) yv=t[2]+(t[3]-t[2])*smoothStep((x-t[0])/(t[1]-t[0])); } pp.push([x,yv]); }
+    pp.push([x1,w[w.length-1].y]);
+    o.push('<polyline points="'+pts2(pp)+'" fill="none" stroke="#0b6b2c" stroke-width="2.4" stroke-dasharray="7 4" marker-end="url(#pa)" style="pointer-events:none"/>');
+    o.push(veh(w[0].x,w[0].y,"av","AV",true));
+    w.forEach(function(q,k){ o.push('<circle data-wp="'+k+'" cx="'+f(X(q.x))+'" cy="'+f(YY(q.y))+'" r="'+(drawMode?7:5)+'" fill="#2e9e4f" stroke="#fff" stroke-width="2" style="cursor:move"><title>Path point '+(k+1)+': '+fmt(q.x,0)+' m, '+laneName(q.y)+'</title></circle>'); });
+  }
+  o.push('</g>');
+
+  /* axis */
+  o.push(line(PADL,axisY,WID-PADR,axisY,"#444",1));
+  var ts=S<0.5?200:100;
+  for(x=0;x<=m.len;x+=ts) o.push(line(X(x),axisY,X(x),axisY+5,"#444",1)+text(X(x),axisY+17,String(x),{s:10.5,c:"#444",nohalo:true}));
+  o.push(text(WID/2,axisY+31,"Distance along the highway (m), true scale",{s:11,c:"#444",nohalo:true}));
+
+  /* tags */
+  zp.forEach(function(p){
+    var T=DS_CAT[p.type], col=DS_COL[T.c], w=tagW(p), px=Math.max(PADL,X(p.x)), y=3+tagRow[p.id]*22, sl=p.id===sel;
+    o.push('<g data-pid="'+p.id+'" data-act="move" style="cursor:grab"><rect x="'+f(px)+'" y="'+y+'" width="'+f(w)+'" height="18" rx="5" fill="'+col+'" stroke="'+(sl?"#111":"#fff")+'" stroke-width="'+(sl?2:1)+'"/>'+
+      '<svg x="'+f(px+4)+'" y="'+(y+2)+'" width="22" height="14" viewBox="0 0 48 30" style="color:#fff;pointer-events:none">'+(DS_ICON[p.type]||"")+'</svg>'+
+      '<text x="'+f(px+28)+'" y="'+(y+13)+'" font-size="11" font-weight="600" fill="#fff" style="pointer-events:none">'+esc(T.n)+'</text></g>');
+  });
+  return {svg:'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+f(WID)+' '+f(H)+'" width="'+f(WID)+'" height="'+f(H)+'" font-family="Figtree,Arial,sans-serif" role="img" aria-label="Scenario designer canvas: road drawn to true length with placed items and the AV path">'+o.join("")+'</svg>',
+          view:{S:S,PADL:PADL,XS0:XS0,K:K,TOP:TOP,Y1:Y1,w:WID,h:H,roadH:roadH}};
+}
+function smoothStep(t){ t=Math.min(1,Math.max(0,t)); return t*t*(3-2*t); }
+
+/* load one of the six example tests into the designer */
+function dsFromExample(i){
+  var p=PRESETS[i], env=ENVS[p.env], M={acc:435,dec:345,rad:130,lw:3.75,v0:40,v1:60,limit:110,vt:env.winter?90:110,exit:p.exit,mid:p.mid.map(function(a){return {type:a[0],len:a[1]};})};
+  var L=layout(M), D=dsNew(), add=function(type,x,len,extra){ var q={id:D.uid++,type:type,x:Math.round(x),len:Math.round(len||0),lane:1,lvl:0,p:{}}; for(var k in extra) q[k]=extra[k]; D.pieces.push(q); return q; };
+  D.len=String(Math.ceil((L.xEnd+50)/50)*50); D.limit=110; D.vt=env.winter?"90":"";
+  add("onramp",0,M.acc,{});
+  if(L.exit) add("offramp",L.exit.x0,M.dec,{});
+  if(L.closure) add("closure",L.closure.cs,L.closure.ce-L.closure.cs-L.closure.tl,{lane:Math.round(L.closure.y/40)+1});
+  L.veh.forEach(function(v){ var ty=v.k==="truck"?"slow":v.k==="ev"?"emerg":"erratic"; add(ty,v.x,0,{lane:Math.round(v.y/40)+1}); });
+  var tmap={merge:"mixed",drive:"free",slow:"free",lane:"mixed",closure:"mixed",brake:"free",ev:"free",exit:"free"};
+  L.steps.forEach(function(s){ add(tmap[s.type],s.x0,s.x1-s.x0,{}); });
+  if(p.env==="fog") add("fog",0,L.xEnd,{}); if(p.env==="night") add("night",0,L.xEnd,{});
+  if(env.winter){ add("ice",0,L.xEnd,{}); add("snowcov",0,L.xEnd,{lvl:p.env==="winF"?1:0}); add("bank",0,L.xEnd,{lvl:1}); }
+  var wp=[{x:L.startX,y:-40}];
+  L.trans.forEach(function(t){ wp.push({x:Math.round(t[1]),y:t[3]}); });
+  wp.push({x:Math.round(L.exit?L.exit.x1:L.xEnd-50),y:L.trans.length?L.trans[L.trans.length-1][3]:-40});
+  D.path=wp; D.sel=null;
+  return D;
+}
+
+/* ============ UI ============ */
+if(typeof document!=="undefined"){ (function(){
+  var $=function(id){return document.getElementById(id);};
+  var state={a:"on", b:"de"};
+  function refTags(r){ return (r||[]).map(function(x){return '<a class="ref" href="#ref-'+x+'" data-ref="'+x+'">'+x+'</a>';}).join(""); }
+  function showErr(id,msg){ var e=$(id); if(msg){ e.textContent=msg; e.hidden=false; } else { e.hidden=true; e.textContent=""; } }
+  function showTab(name){
+    Array.prototype.forEach.call(document.querySelectorAll("nav.tabs button"),function(b){ b.setAttribute("aria-selected", b.getAttribute("data-tab")===name?"true":"false"); });
+    ["countries","builder","designer","calc","refs"].forEach(function(t){ $("tab-"+t).hidden=(t!==name); });
+    if(name==="builder") renderLive();
+    if(name==="designer") dzAll();
+    window.scrollTo({top:0});
+  }
+  function valueBlock(v){
+    return '<div class="val"><div class="vh"><b>'+esc(v.item)+'</b><span class="tag '+v.tag+'">'+esc(TAGS[v.tag])+'</span></div><p>'+esc(v.rule)+'</p><small>'+esc(v.src)+'</small></div>';
+  }
+  function panel(k){
+    var d=DATA[k], shown=d.values.filter(function(v){return TEST_ITEMS[k].indexOf(v.item)>=0;});
+    var h='<article class="card pad"><div class="ph"><div><h2>'+esc(d.name)+'</h2><p class="sub">'+esc(d.head)+'</p></div><span class="pill">'+esc(d.est.replace(/\s*\(.*$/,""))+'</span></div>';
+    h+='<div class="grp"><h3>Test values</h3>'+shown.map(valueBlock).join("")+'</div>';
+    h+='<div class="grp"><h3>Approval steps</h3><ol class="steps">'+d.steps.map(function(s,i){
+      var meta=[s.time,s.basis].filter(Boolean).join(" · ");
+      return '<li><details><summary><span class="n">'+(i+1)+'</span><span class="t">'+esc(s.t)+'</span><span class="who">'+esc(s.who)+'</span></summary><div class="body"><p style="margin:0 0 6px">'+esc(s.what)+'</p>'+(meta?'<small style="color:var(--muted)">'+esc(meta)+'</small>':'')+'</div></details></li>';
+    }).join("")+'</ol></div>';
+    h+='<details class="fold"><summary>Documents ('+d.docs.length+')</summary><ul>'+d.docs.map(function(x){return '<li>'+esc(x)+'</li>';}).join("")+'</ul></details>';
+    h+='<details class="fold"><summary>Known gaps ('+d.gaps.length+')</summary><ul>'+d.gaps.map(function(x){return '<li>'+esc(x)+'</li>';}).join("")+'</ul></details>';
+    h+='<p class="hint" style="margin-top:14px">Sources:'+refTags(CTY_REFS[k])+'</p></article>';
+    return h;
+  }
+  function renderCountries(){
+    if(!state.b || state.b===state.a) state.b=CTY_ORDER.filter(function(k){return k!==state.a;})[0];
+    $("cty-chips").innerHTML=CTY_ORDER.map(function(k){ return '<button type="button" class="chip" data-c="'+k+'" aria-pressed="'+(k===state.a)+'">'+esc(DATA[k].name)+'</button>'; }).join("");
+    $("cty-out").innerHTML=panel(state.a);
+    $("cty-b").innerHTML=CTY_ORDER.filter(function(k){return k!==state.a;}).map(function(k){ return '<option value="'+k+'"'+(k===state.b?' selected':'')+'>'+esc(DATA[k].name)+'</option>'; }).join("");
+    var A=DATA[state.a].name, B=DATA[state.b].name;
+    $("cmp-a").textContent=A;
+    $("cmp-body").innerHTML=COMPARE_ROWS.map(function(r){
+      return '<div class="cmp"><b>'+esc(r[0])+'</b><div><small>'+esc(A)+'</small>'+esc(r[1][state.a])+'</div><div><small>'+esc(B)+'</small>'+esc(r[1][state.b])+'</div></div>';
+    }).join("");
+  }
+  /* ---- scenario designer ---- */
+  var D={p:0,dirty:false,env:"day",limit:110,vt:"",g:{},br:{tr:"",aav:"",alead:""},mid:[],exit:true,reps:"3",uid:1};
+  function loadPreset(i){
+    var p=PRESETS[i]; D.p=i; D.dirty=false; D.env=p.env; D.exit=p.exit; D.vt=""; D.limit=110;
+    D.mid=p.mid.map(function(m){ return {id:D.uid++,type:m[0],len:String(m[1])}; });
+  }
+  function readModel(){
+    var errs={}, M={}, c;
+    GEO_IN.forEach(function(g){ c=checkNum(D.g[g.id]||"",g); if(c.err) errs[g.id]=c.err; M[g.id]=(c.val!==null&&!c.err)?c.val:g.def; });
+    M.limit=D.limit;
+    var env=ENVS[D.env], auto=env.winter?90:D.limit;
+    c=checkNum(D.vt,OTHER_IN.vt); if(c.err) errs.vt=c.err; M.vt=(c.val!==null&&!c.err)?c.val:auto; M.vtAuto=auto;
+    BRAKE_IN.forEach(function(b){ c=checkNum(D.br[b.id],b); if(c.err) errs["br"+b.id]=c.err; M[b.id]=(c.val!==null&&!c.err)?c.val:null; });
+    c=checkNum(D.reps,OTHER_IN.reps); if(c.err) errs.reps=c.err; M.reps=(c.val!==null&&!c.err)?c.val:3;
+    M.exit=D.exit;
+    M.mid=D.mid.map(function(s){ var def=STEPS[s.type].len; c=checkNum(s.len,OTHER_IN.len); if(c.err) errs["s"+s.id]=c.err; return {id:s.id,type:s.type,len:(c.val!==null&&!c.err)?c.val:def}; });
+    return {M:M,errs:errs,env:env};
+  }
+  function stepMeasure(t,env,M){
+    var st=STEPS[t], m=(env.winter&&st.wmeasure)?st.wmeasure:st.measure;
+    if(t==="exit") m=env.winter?"(proposed) at or below "+fmt(M.v1,0)+" km/h at the ramp entry, where slowing starts, lane position.":"where slowing starts, ramp entry speed ("+fmt(M.v1,0)+" km/h), lane position.";
+    if(t==="merge"&&env.winter) m="speed at the merge nose (reach "+fmt(M.vt,0)+" km/h, not "+fmt(M.limit,0)+"), gap accepted, signal timing, lane position.";
+    if((t==="drive"||t==="slow")&&env.winter) m="(proposed) speed at or below "+fmt(M.vt,0)+" km/h, standard deviation of speed, lane offset.";
+    return m;
+  }
+  function stepTraffic(t,env,M){ var s=STEPS[t].traffic; return (env.winter&&(t==="merge"||t==="lane"||t==="closure"))?s+" at "+fmt(M.vt,0)+" km/h":(env.winter&&t==="slow"?s+"; traffic at "+fmt(M.vt,0)+" km/h":s); }
+  function cur(){ var rd=readModel(); rd.L=layout(rd.M); return rd; }
+
+  function renderPresets(){
+    $("b-presets").innerHTML=PRESETS.map(function(p,i){ return '<button type="button" class="chip" data-preset="'+i+'" aria-pressed="'+(!D.dirty&&D.p===i)+'">'+esc(p.n)+'</button>'; }).join("");
+  }
+  function renderFigure(rd){
+    var W=Math.max(640,$("fig-wrap").clientWidth||1000), r=figSVG(rd.M,rd.L,rd.env,W);
+    $("fig-wrap").innerHTML=r.svg;
+    $("fig-note").textContent="Distance is drawn to true length. Lateral scale is exaggerated about "+fmt(r.exag,1)+" times so the lanes can be seen. Vehicles and lane dashes are symbols, not to scale. Spacing between steps is a proposal, not an MTO value.";
+    $("fig-title").textContent=D.dirty?"Custom scenario":PRESETS[D.p].title;
+    $("fig-sub").textContent=rd.env.d+" Speed limit "+fmt(rd.M.limit,0)+" km/h, traffic at "+fmt(rd.M.vt,0)+" km/h. 3 mainline lanes plus the ramp lane.";
+  }
+  function renderCards(rd){
+    $("step-cards").innerHTML=rd.L.steps.map(function(s,k){
+      var c=STEP_COLORS[k%STEP_COLORS.length], extra="";
+      if(s.type==="brake") extra='<p><b>Lead vehicle:</b> soft target, starting gap 2 s ('+fmt(secToM(rd.M.vt,2),1)+' m at '+fmt(rd.M.vt,0)+' km/h). Its braking is to be set by MTO.</p>';
+      return '<div class="sc" style="--c:'+c+'"><h4>'+(k+1)+'&nbsp; '+esc(STEPS[s.type].n)+'</h4><p><b>Distance:</b> '+fmt(s.x0,0)+' to '+fmt(s.x1,0)+' m</p><p><b>Traffic:</b> '+esc(stepTraffic(s.type,rd.env,rd.M))+'</p><p><b>Measured:</b> '+esc(stepMeasure(s.type,rd.env,rd.M))+'</p>'+extra+'</div>';
+    }).join("");
+  }
+  function renderResults(rd){
+    var have={}; rd.L.steps.forEach(function(s){ STEPS[s.type].skills.forEach(function(k){ have[k]=1; }); });
+    var miss=SKILL_ORDER.filter(function(k){return !have[k];});
+    var h='<h2>Skills covered</h2><div class="skchips">'+SKILL_ORDER.map(function(k){ return '<span class="sk'+(have[k]?' on':'')+'">'+(have[k]?'✓ ':'')+esc(SKILL_NAME[k])+'</span>'; }).join("")+'</div>';
+    h+='<p class="hint" style="margin-top:8px">'+(miss.length?'Not covered by these steps: '+esc(miss.map(function(k){return SKILL_NAME[k];}).join(", "))+'.':'All seven testable skills are covered by this scenario.')+'</p>';
+    h+='<h2 style="margin-top:22px">Numbers for this scenario</h2><div style="margin-top:6px">'+numberRows(scenarioNumbers(rd.M,rd.L,rd.env))+'</div>';
+    h+='<p class="hint">Pass or fail limits are not set. Winter pass criteria marked "(proposed)" are to be confirmed.</p>';
+    $("res").innerHTML=h;
+  }
+  function numberRows(rows){ return rows.map(function(x){ return '<div class="kv"><span class="k">'+esc(x.k)+(x.n?'<small>'+esc(x.n)+'</small>':'')+'</span><span class="v">'+esc(x.v)+refTags(x.r)+'</span></div>'; }).join(""); }
+  function renderRun(rd){
+    var n=rd.M.reps;
+    $("run-out").innerHTML='<b>'+(6*n)+' runs</b> for the six tests ('+(5*n)+' without the night test): 6 tests × '+fmt(n,0)+' repeats.';
+  }
+  function fieldHtml(id,label,unit,val,hint,errMsg,eg,rf,dk){
+    var fid="f-"+id;
+    return '<label for="'+fid+'">'+esc(label)+(unit?' ('+esc(unit)+')':'')+'</label><input id="'+fid+'" data-k="'+dk+'" type="text" inputmode="decimal" autocomplete="off" value="'+esc(val)+'" placeholder="'+esc(eg)+'">'+(hint?'<div class="hint">'+esc(hint)+refTags(rf)+'</div>':'')+'<div class="err sm" id="e-'+fid+'" role="alert"'+(errMsg?'':' hidden')+'>'+esc(errMsg||"")+'</div>';
+  }
+  function renderEditor(rd){
+    var h='<h2>Change the scenario</h2>';
+    h+='<h3 style="margin-top:16px">Environment</h3><div class="chips">'+ENV_ORDER.map(function(k){ return '<button type="button" class="chip sm" data-env="'+k+'" aria-pressed="'+(D.env===k)+'">'+esc(ENVS[k].n)+'</button>'; }).join("")+'</div>';
+    h+='<h3 style="margin-top:16px">Mainline speed limit</h3><div class="chips">'+SPEEDS.map(function(s){ return '<button type="button" class="chip sm" data-lim="'+s+'" aria-pressed="'+(D.limit===s)+'">'+s+' km/h</button>'; }).join("")+'</div>'+refTags(["R2"]);
+    h+=fieldHtml("vt","Traffic speed","km/h",D.vt,"Leave empty for "+fmt(rd.M.vtAuto,0)+" km/h"+(rd.env.winter?" (winter worst case).":" (same as the limit)."),rd.errs.vt,String(rd.M.vtAuto),null,"vt");
+    h+='<h3 style="margin-top:16px">Steps</h3><div class="steprow fixed"><span class="sn" style="background:'+STEP_COLORS[0]+'">1</span><div class="sbody"><b>Enter and merge</b><small>Always first. Length is the acceleration lane.</small></div></div>';
+    rd.M.mid.forEach(function(s,i){
+      var st=STEPS[s.type], k=i+1;
+      h+='<div class="steprow"><span class="sn" style="background:'+STEP_COLORS[k%STEP_COLORS.length]+'">'+(k+1)+'</span><div class="sbody"><select data-stype="'+s.id+'" aria-label="Step type">'+MID_TYPES.map(function(t){ return '<option value="'+t+'"'+(t===s.type?' selected':'')+'>'+esc(STEPS[t].n)+'</option>'; }).join("")+'</select>'+
+        '<label for="f-s'+s.id+'">'+esc(st.lbl)+'</label><input id="f-s'+s.id+'" data-k="len:'+s.id+'" type="text" inputmode="decimal" autocomplete="off" value="'+esc(D.mid[i].len)+'" placeholder="'+st.len+'"><div class="err sm" id="e-f-s'+s.id+'" role="alert"'+(rd.errs["s"+s.id]?'':' hidden')+'>'+esc(rd.errs["s"+s.id]||"")+'</div></div>'+
+        '<div class="mini"><button type="button" class="xbtn" data-mv="'+s.id+'|-1" aria-label="Move step earlier"'+(i===0?' disabled':'')+'>▲</button><button type="button" class="xbtn" data-mv="'+s.id+'|1" aria-label="Move step later"'+(i===rd.M.mid.length-1?' disabled':'')+'>▼</button><button type="button" class="xbtn" data-rm="'+s.id+'" aria-label="Remove step">✕</button></div></div>';
+    });
+    h+='<div class="toolbar" style="margin-top:10px"><select id="b-addsel" class="inl" aria-label="Step to add">'+MID_TYPES.map(function(t){ return '<option value="'+t+'">'+esc(STEPS[t].n)+'</option>'; }).join("")+'</select><button type="button" class="btn alt" id="b-add"'+(D.mid.length>=MAX_MID?' disabled':'')+'>'+(D.mid.length>=MAX_MID?'Maximum '+MAX_MID+' steps':'Add step')+'</button></div>';
+    h+='<label class="chk"><input type="checkbox" id="b-exit"'+(D.exit?' checked':'')+'> End with the exit (deceleration lane and ramp)</label>';
+    h+='<h3 style="margin-top:18px">Road</h3>';
+    GEO_IN.forEach(function(g){ h+=fieldHtml(g.id,g.label,g.unit,D.g[g.id]||"",g.hint+" Default "+fmt(g.def,g.def%1?2:0)+".",rd.errs[g.id],g.eg,g.r,"g:"+g.id); });
+    if(D.mid.some(function(s){return s.type==="brake";})){
+      h+='<h3 style="margin-top:18px">Hard braking inputs <span class="opt">optional</span></h3>';
+      BRAKE_IN.forEach(function(b){ h+=fieldHtml("br"+b.id,b.label,b.unit,D.br[b.id],b.hint,rd.errs["br"+b.id],b.eg,b.r,"br:"+b.id); });
+    }
+    $("ed").innerHTML=h;
+  }
+  function renderLive(){ var rd=cur(); renderPresets(); renderFigure(rd); renderCards(rd); renderResults(rd); renderRun(rd); return rd; }
+  function renderAll(){ var rd=renderLive(); renderEditor(rd); }
+  function showFieldErr(inp){
+    var rd=readModel(), k=inp.getAttribute("data-k"), key=k.indexOf("g:")===0?k.slice(2):k.indexOf("br:")===0?"br"+k.slice(3):k.indexOf("len:")===0?"s"+k.slice(4):k, e=$("e-"+inp.id), m=rd.errs[key];
+    if(e){ e.textContent=m||""; e.hidden=!m; }
+  }
+  function setField(k,v){
+    if(k.indexOf("g:")===0) D.g[k.slice(2)]=v; else if(k.indexOf("br:")===0) D.br[k.slice(3)]=v; else if(k==="vt") D.vt=v; else if(k==="reps") D.reps=v;
+    else if(k.indexOf("len:")===0){ var id=Number(k.slice(4)); D.mid.forEach(function(s){ if(s.id===id) s.len=v; }); }
+    if(k!=="reps") D.dirty=true;
+  }
+  function download(name,blob){ var an=document.createElement("a"); an.href=URL.createObjectURL(blob); an.download=name; document.body.appendChild(an); an.click(); setTimeout(function(){URL.revokeObjectURL(an.href); an.remove();},500); }
+  function fileTag(){ return D.dirty?"custom":PRESETS[D.p].n.split(" ")[0].toLowerCase()+"-"+PRESETS[D.p].n.split(" ")[1]; }
+  function exportCSV(){
+    var rd=cur(), M=rd.M, rows=[["Scenario",D.dirty?"Custom":PRESETS[D.p].n],["Environment",rd.env.n],["Speed limit (km/h)",M.limit],["Traffic speed (km/h)",M.vt],["Acceleration lane (m)",M.acc],["Deceleration lane (m)",M.dec],["Ramp radius (m)",M.rad],["Repeats per test",M.reps],[],["Step","From (m)","To (m)","Traffic","Measured"]];
+    rd.L.steps.forEach(function(s,k){ rows.push([(k+1)+" "+STEPS[s.type].n,Math.round(s.x0),Math.round(s.x1),stepTraffic(s.type,rd.env,M),stepMeasure(s.type,rd.env,M)]); });
+    rows.push([]); rows.push(["Number","Value","Note"]);
+    scenarioNumbers(M,rd.L,rd.env).forEach(function(x){ rows.push([x.k,x.v,x.n||""]); });
+    download("scenario-"+fileTag()+".csv",new Blob(["﻿"+rows.map(function(r){return r.map(csvCell).join(",");}).join("\r\n")],{type:"text/csv;charset=utf-8"}));
+  }
+  function exportPNG(){
+    var svg=$("fig-wrap").querySelector("svg"); if(!svg) return;
+    var url=URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(svg)],{type:"image/svg+xml;charset=utf-8"})), img=new Image();
+    img.onload=function(){ var k=2, c=document.createElement("canvas"); c.width=img.width*k; c.height=img.height*k; var x=c.getContext("2d"); x.scale(k,k); x.drawImage(img,0,0); URL.revokeObjectURL(url); c.toBlob(function(b){ if(b) download("scenario-"+fileTag()+".png",b); }); };
+    img.onerror=function(){ URL.revokeObjectURL(url); };
+    img.src=url;
+  }
+  function builderClick(e){
+    var t=e.target, el;
+    if((el=t.closest("[data-preset]"))){ loadPreset(Number(el.getAttribute("data-preset"))); renderAll(); return; }
+    if((el=t.closest("[data-env]"))){ D.env=el.getAttribute("data-env"); D.dirty=true; renderAll(); return; }
+    if((el=t.closest("[data-lim]"))){ D.limit=Number(el.getAttribute("data-lim")); D.dirty=true; renderAll(); $("c1-v").value=D.limit; $("c2-v").value=D.limit; return; }
+    if((el=t.closest("[data-mv]"))){ var a=el.getAttribute("data-mv").split("|"), id=Number(a[0]), d=Number(a[1]), i=D.mid.findIndex(function(s){return s.id===id;}), j=i+d; if(i>=0&&j>=0&&j<D.mid.length){ var tmp=D.mid[i]; D.mid[i]=D.mid[j]; D.mid[j]=tmp; D.dirty=true; renderAll(); } return; }
+    if((el=t.closest("[data-rm]"))){ var rid=Number(el.getAttribute("data-rm")); D.mid=D.mid.filter(function(s){return s.id!==rid;}); D.dirty=true; renderAll(); return; }
+    if(t.id==="b-add"&&D.mid.length<MAX_MID){ var ty=$("b-addsel").value; D.mid.push({id:D.uid++,type:ty,len:String(STEPS[ty].len)}); D.dirty=true; renderAll(); return; }
+    if(t.id==="b-png") exportPNG();
+    if(t.id==="b-csv") exportCSV();
+    if(t.id==="b-print") window.print();
+  }
+
+  /* ============ FREE-FORM DESIGNER UI ============ */
+  var DZ=dsNew(), dzDrag=null, dzView=null, dzRaf=0, dzClr=0;
+  var DZ_LANE_Y=function(){ var a=[-40], i, n=Math.max(1,Math.min(6,Math.round(Number(DZ.lanes)||3))); for(i=0;i<n;i++) a.push(i*40); return a; };
+  function dzModel(){ return dsModel(DZ); }
+  function dzPiece(id){ return DZ.pieces.filter(function(p){return p.id===id;})[0]; }
+  function dzSnap(v,s){ return Math.round(v/s)*s; }
+  function dzXY(e){
+    var svg=$("dz-wrap").querySelector("svg"); if(!svg||!dzView) return null;
+    var r=svg.getBoundingClientRect(), v=dzView;
+    return {x:(e.clientX-r.left-v.PADL)/v.S+v.XS0, d:v.Y1-((e.clientY-r.top)-v.TOP)/v.K};
+  }
+  function dzNearLane(d){ var a=DZ_LANE_Y(), b=a[0]; a.forEach(function(y){ if(Math.abs(y-d)<Math.abs(b-d)) b=y; }); return b; }
+  function dzMaxX(){ var m=Number(String(DZ.len).replace(/,/g,"")); return isNaN(m)||m<=0?2000:m; }
+
+  function dzPalette(){
+    $("dz-pal").innerHTML=["geo","env","traf"].map(function(c){
+      return '<div class="palgrp"><div class="palh" style="color:'+DS_COL[c]+'">'+DS_LBL[c]+'</div><div class="palrow">'+DS_ORDER[c].map(function(t){
+        return '<div role="button" tabindex="0" class="pal" data-add="'+t+'" style="--c:'+DS_COL[c]+'" title="Drag onto the road, or click to add"><svg viewBox="0 0 48 30" width="48" height="30" aria-hidden="true">'+DS_ICON[t]+'</svg><span>'+esc(DS_CAT[t].n)+'</span></div>'; }).join("")+'</div></div>';
+    }).join("");
+  }
+  function dzCanvas(){
+    var wrap=$("dz-wrap"), W=Math.max(320,(wrap.clientWidth||900)-2), r=dsSVG(dzModel(),W,DZ.sel,DZ.draw);
+    wrap.innerHTML=r.svg; dzView=r.view;
+    $("dz-draw").setAttribute("aria-pressed",DZ.draw?"true":"false");
+    $("dz-draw").textContent=DZ.draw?"Drawing path: click the road to add points":"Draw AV path";
+    $("dz-wrap").classList.toggle("drawing",!!DZ.draw);
+  }
+  function dzGlobal(){
+    var m=dzModel();
+    $("dz-glob").innerHTML=DS_GLOBAL.map(function(g){
+      return '<div><label for="dz-g-'+g.id+'">'+g.label+(g.unit?' ('+g.unit+')':'')+'</label><input id="dz-g-'+g.id+'" data-dzg="'+g.id+'" type="text" inputmode="decimal" value="'+esc(DZ[g.id])+'" placeholder="'+g.def+'"><div class="hint">'+esc(dsHint(g))+'</div><div class="err sm" id="dz-e-'+g.id+'" role="alert" hidden></div></div>';
+    }).join("")+
+    '<div><label for="dz-g-limit">Speed limit (km/h)</label><select id="dz-g-limit" data-dzg="limit">'+[100,110,120].map(function(v){return '<option value="'+v+'"'+(DZ.limit===v?" selected":"")+'>'+v+'</option>';}).join("")+'</select><div class="hint">Mainline speeds 100, 110 or 120 km/h. <a class="ref" href="#ref-R2" data-ref="R2">R2</a></div></div>'+
+    '<div><label for="dz-g-vt">Traffic speed (km/h)</label><input id="dz-g-vt" data-dzg="vt" type="text" inputmode="decimal" value="'+esc(DZ.vt)+'" placeholder="same as limit"><div class="hint">Leave empty to use the speed limit. Winter tests used 90 km/h.</div><div class="err sm" id="dz-e-vt" role="alert" hidden></div></div>';
+  }
+  function dzFBHtml(t,msg){ return msg?'<div class="fb '+t+'" role="status">'+(t==="ok"?"✓ ":t==="warn"?"⚠ ":"ℹ ")+esc(msg)+'</div>':''; }
+  function dzFB(p,key){ var m=dzModel(), q=m.pieces.filter(function(z){return z.id===p.id;})[0], f=q&&dsFeedback(m,q,key), e=$("dz-fb-"+key); if(e) e.innerHTML=f?dzFBHtml(f.t,f.msg):""; }
+  function dzFBAll(){ var p=dzPiece(DZ.sel); if(!p) return; ["x","len","rad","v0","v1","mu","K","grade"].forEach(function(k){ dzFB(p,k); }); }
+  function dzInspector(){
+    var p=dzPiece(DZ.sel), el=$("dz-insp");
+    if(!p){ el.innerHTML='<p class="hint" style="margin:0">Click an item on the road to edit it. Drag it to move it; drag its end grip to change its length.</p>'; return; }
+    var T=DS_CAT[p.type], h='<div class="inspt" style="color:'+DS_COL[T.c]+'">'+esc(T.n)+'</div>';
+    h+=(T.sk?'<div class="skchips" style="margin:6px 0 4px">'+T.sk.map(function(k){return '<span class="sk on">'+esc(SKILL_NAME[k])+'</span>';}).join("")+'</div><p class="hint" style="margin-top:0">Skills this item can test when the AV path meets it.</p>':'<p class="hint">Sets the conditions. It makes the tested skills harder and has no skill of its own.</p>');
+    h+='<div class="inspg">';
+    h+='<div><label for="dz-i-x">Starts at (m)</label><input id="dz-i-x" data-dzi="x" type="text" inputmode="decimal" value="'+p.x+'"><div class="err sm" id="dz-ie-x" role="alert" hidden></div><div id="dz-fb-x"></div></div>';
+    if(!T.pt){
+      h+='<div><label for="dz-i-len">'+esc(T.lenLbl||"Length (m)")+'</label><input id="dz-i-len" data-dzi="len" type="text" inputmode="decimal" value="'+p.len+'">'+(T.lenHint?'<div class="hint">'+esc(T.lenHint.note)+' '+refTags(T.lenHint.r)+'</div>':'')+'<div class="err sm" id="dz-ie-len" role="alert" hidden></div><div id="dz-fb-len"></div></div>';
+    }
+    if(T.lane){ var n=Math.max(1,Math.min(6,Math.round(Number(DZ.lanes)||3))), o=""; for(var i=1;i<=n;i++) o+='<option value="'+i+'"'+(p.lane===i?" selected":"")+'>Lane '+i+(i===1?" (right)":"")+'</option>';
+      h+='<div><label for="dz-i-lane">'+esc(T.laneLbl)+'</label><select id="dz-i-lane" data-dzi="lane">'+o+'</select></div>'; }
+    if(T.levels) h+='<div><label for="dz-i-lvl">Level</label><select id="dz-i-lvl" data-dzi="lvl">'+T.levels.map(function(l,i){return '<option value="'+i+'"'+(p.lvl===i?" selected":"")+'>'+esc(l)+'</option>';}).join("")+'</select></div>';
+    (T.params||[]).forEach(function(s){
+      var v=(p.p&&p.p[s.id])||"";
+      h+='<div><label for="dz-i-'+s.id+'">'+esc(s.label)+(s.unit?' ('+s.unit+')':'')+'</label><input id="dz-i-'+s.id+'" data-dzp="'+s.id+'" type="text" inputmode="decimal" value="'+esc(v)+'" placeholder="'+(s.def!==undefined?s.def:"enter a value")+'"><div class="hint">'+esc(dsHint(s))+' '+refTags(s.r)+'</div><div class="err sm" id="dz-ie-'+s.id+'" role="alert" hidden></div><div id="dz-fb-'+s.id+'"></div></div>';
+    });
+    h+='</div>'+(T.note?'<p class="hint">'+esc(T.note)+'</p>':'')+'<div class="dzbar"><button type="button" class="btn alt" data-dz="reset">Reset this item</button><button type="button" class="btn alt" data-dz="del">Remove this item</button></div>';
+    el.innerHTML=h;
+    var m=dzModel(); Object.keys(m.errs).forEach(function(k){ var q=k.split(":"); if(Number(q[0])===p.id){ var e=$("dz-ie-"+q[1]); if(e){ e.textContent=m.errs[k]; e.hidden=false; } } });
+    dzFBAll();
+  }
+  function dzResults(){
+    var m=dzModel(), sk=dsSkills(m), warn=dsWarnings(m), nums=dsNumbers(m), crit=dsCrit(m,sk,m.crit), h="", n=0;
+    Object.keys(m.errs).forEach(function(k){ var e=$("dz-e-"+k); if(e){ e.textContent=m.errs[k]; e.hidden=false; } });
+    DS_GLOBAL.map(function(g){return g.id;}).concat(["vt"]).forEach(function(k){ var e=$("dz-e-"+k); if(e&&!m.errs[k]){ e.hidden=true; e.textContent=""; } });
+    SKILL_ORDER.forEach(function(k){ if(sk[k]) n++; });
+    var s='<h3>Skills this scenario tests</h3><div class="skchips">'+SKILL_ORDER.map(function(k){ return '<span class="sk'+(sk[k]?' on':'')+'" title="'+esc(sk[k]||"Not covered yet")+'">'+(sk[k]?'✓ ':'')+esc(SKILL_NAME[k])+'</span>'; }).join("")+'</div>';
+    s+='<p class="hint">'+n+' of 7 covered. '+(m.path.length?'Worked out from the items and the path you drew.':'Draw an AV path to see which skills it tests.')+'</p>';
+    if(n) s+='<ul class="tight small">'+SKILL_ORDER.filter(function(k){return sk[k];}).map(function(k){ return '<li><b>'+esc(SKILL_NAME[k])+':</b> '+esc(sk[k])+'</li>'; }).join("")+'</ul>';
+    $("dz-sk").innerHTML=s;
+    if(warn.length) h+='<div class="warnbox" role="status"><b>Check these</b><ul class="tight">'+warn.map(function(w){return '<li>'+esc(w)+'</li>';}).join("")+'</ul></div>';
+    h+='<h3 style="margin-top:18px">Calculations</h3>';
+    h+=nums.length?'<div class="numtab">'+nums.map(function(r){ return '<div class="numrow"><div class="nk">'+esc(r.k)+'</div><div class="nv">'+esc(r.v)+'</div><div class="nn">'+esc(r.n)+' '+refTags(r.r)+'</div></div>'; }).join("")+'</div>':'<p class="hint">Add items and a path to see numbers.</p>';
+    h+='<h3 style="margin-top:18px">Pass or fail criteria</h3>';
+    if(!crit.length) h+='<p class="hint">Draw an AV path. The measures to judge appear here.</p>';
+    else { var set=crit.filter(function(c){return c.set;}).length;
+      h+='<p class="hint" style="margin-top:0">'+set+' of '+crit.length+' limits set. Only the headway has a sourced limit. Enter the others when MTO or Dr. Kim agrees them; none is invented here.</p><div class="numtab">'+crit.map(function(c){
+        return '<div class="critrow"><div class="nk">'+esc(c.label)+'</div>'+(c.fixed?'<div class="nv">'+esc(c.fixed)+(c.unit?' '+esc(c.unit):'')+'</div>':'<div class="cin"><span>Pass limit</span><input type="text" inputmode="decimal" data-crit="'+c.id+'" value="'+esc(c.val)+'" placeholder="not set" aria-label="Limit for '+esc(c.label)+'"><span>'+esc(c.unit)+'</span></div>')+'<div class="nn">'+(c.fixed?esc(c.basis)+' '+refTags(c.r):(c.set?'Your limit.':'Limit not set.'))+'</div></div>'; }).join("")+'</div>'; }
+    $("dz-res").innerHTML=h;
+    $("dz-prompt").textContent=dsPrompt(m);
+  }
+  function dzAll(){ dzCanvas(); dzGlobal(); dzInspector(); dzResults(); }
+  function dzLight(){ if(dzRaf) return; dzRaf=requestAnimationFrame(function(){ dzRaf=0; dzCanvas(); dzResults(); }); }
+
+  function dzAdd(type,x){
+    var T=DS_CAT[type], max=dzMaxX(), p={id:DZ.uid++,type:type,x:Math.max(0,Math.min(max,dzSnap(x,5))),len:T.len||0,lane:1,lvl:0,p:{}};
+    DZ.pieces.push(p); DZ.sel=p.id; dzAll();
+  }
+  function dzDel(){ DZ.pieces=DZ.pieces.filter(function(p){return p.id!==DZ.sel;}); DZ.sel=null; dzAll(); }
+
+  /* drag from the palette: pointer events, so it works in every browser and on touch */
+  var dzPal=null, dzNoClick=false;
+  document.addEventListener("pointerdown",function(e){ var el=e.target.closest&&e.target.closest(".pal"); if(el&&e.button===0) dzPal={t:el.getAttribute("data-add"),el:el,sx:e.clientX,sy:e.clientY,g:null}; });
+  document.addEventListener("pointermove",function(e){
+    if(!dzPal) return;
+    if(!dzPal.g&&Math.hypot(e.clientX-dzPal.sx,e.clientY-dzPal.sy)>6){ var g=dzPal.el.cloneNode(true); g.className="pal ghost"; document.body.appendChild(g); dzPal.g=g; document.body.classList.add("dz-dragging"); }
+    if(dzPal.g){ dzPal.g.style.left=(e.clientX+10)+"px"; dzPal.g.style.top=(e.clientY+10)+"px"; $("dz-wrap").classList.toggle("over",dzOver(e)); e.preventDefault(); }
+  });
+  document.addEventListener("pointerup",function(e){
+    if(!dzPal) return; var d=dzPal; dzPal=null;
+    if(!d.g) return; d.g.remove(); document.body.classList.remove("dz-dragging"); $("dz-wrap").classList.remove("over"); dzNoClick=true; setTimeout(function(){dzNoClick=false;},0);
+    var c=dzXY(e); if(c&&dzOver(e)) dzAdd(d.t,c.x);
+  });
+  document.addEventListener("pointercancel",function(){ if(dzPal&&dzPal.g) dzPal.g.remove(); dzPal=null; document.body.classList.remove("dz-dragging"); $("dz-wrap").classList.remove("over"); });
+  function dzOver(e){ var w=$("dz-wrap").getBoundingClientRect(); return e.clientX>=w.left-30&&e.clientX<=w.right+30&&e.clientY>=w.top-30&&e.clientY<=w.bottom+30; }
+  document.addEventListener("keydown",function(e){ var el=e.target.closest&&e.target.closest(".pal"); if(el&&(e.key==="Enter"||e.key===" ")){ e.preventDefault(); var ty=el.getAttribute("data-add"); dzAdd(ty,ty==="onramp"?0:Math.round(dzMaxX()*0.2)); } });
+  /* move, resize and path points */
+  document.addEventListener("pointerdown",function(e){
+    if(!e.target.closest||!e.target.closest("#dz-wrap")) return;
+    var el, c=dzXY(e); if(!c) return;
+    if((el=e.target.closest("[data-wp]"))){ dzDrag={k:"wp",i:Number(el.getAttribute("data-wp"))}; e.preventDefault(); return; }
+    if((el=e.target.closest("[data-pid]"))){
+      var p=dzPiece(Number(el.getAttribute("data-pid"))); if(!p) return;
+      DZ.sel=p.id; dzDrag={k:el.getAttribute("data-act"),id:p.id,cx:e.clientX,x0:p.x,len0:p.len}; dzCanvas(); e.preventDefault(); return;
+    }
+    if(DZ.draw&&e.target.closest("[data-road]")){ dzDrag={k:"stroke",s:[c]}; e.preventDefault(); }
+  });
+  document.addEventListener("pointermove",function(e){
+    if(!dzDrag||!dzView) return;
+    if(dzDrag.k==="stroke"){ var c0=dzXY(e); if(c0&&c0.x>dzDrag.s[dzDrag.s.length-1].x+5){ dzDrag.s.push(c0); DZ.path=dzStroke(dzDrag.s); dzLight(); } return; }
+    if(dzDrag.k==="wp"){ var c=dzXY(e); if(!c) return; var q=DZ.path[dzDrag.i]; if(q){ q.x=Math.max(0,Math.min(dzMaxX(),dzSnap(c.x,5))); q.y=dzNearLane(c.d); } }
+    else { var p=dzPiece(dzDrag.id), dm=(e.clientX-dzDrag.cx)/dzView.S; if(!p) return;
+      if(dzDrag.k==="move"){ p.x=Math.max(0,Math.min(dzMaxX(),dzSnap(dzDrag.x0+dm,5))); if(DS_CAT[p.type].lane){ var c2=dzXY(e), nl=Math.max(1,Math.min(Math.round(Number(DZ.lanes)||3),Math.round(c2.d/40)+1)); p.lane=nl; } }
+      else p.len=Math.max(20,dzSnap(dzDrag.len0+dm,5)); }
+    dzLight();
+  });
+  /* a drawn stroke becomes path points: one at the start, one where the lane changes, one at the end */
+  function dzStroke(s){
+    var out=[], mx=dzMaxX(), pt=function(c){ return {x:Math.max(0,Math.min(mx,dzSnap(c.x,5))),y:dzNearLane(c.d)}; }, last;
+    s.forEach(function(c,i){ var q=pt(c); last=out[out.length-1];
+      if(!last||(q.y!==last.y&&q.x-last.x>=20)||(i===s.length-1&&q.x-last.x>=20)) out.push(q);
+      else if(q.y===last.y&&i===s.length-1) last.x=q.x; });
+    return out;
+  }
+  document.addEventListener("pointerup",function(){ if(!dzDrag) return;
+    if(dzDrag.k==="stroke"){ if(dzDrag.s.length<2){ var q=dzDrag.s[0]; DZ.path.push({x:Math.max(0,Math.min(dzMaxX(),dzSnap(q.x,5))),y:dzNearLane(q.d)}); } }
+    dzDrag=null; DZ.path.sort(function(a,b){return a.x-b.x;}); dzAll(); });
+  document.addEventListener("dblclick",function(e){ var el=e.target.closest&&e.target.closest("[data-wp]"); if(el){ DZ.path.splice(Number(el.getAttribute("data-wp")),1); dzAll(); } });
+  document.addEventListener("keydown",function(e){
+    if($("tab-designer").hidden||(e.key!=="Delete"&&e.key!=="Backspace")) return;
+    var tg=e.target; if(tg&&(tg.tagName==="INPUT"||tg.tagName==="TEXTAREA"||tg.tagName==="SELECT")) return;
+    if(DZ.sel){ e.preventDefault(); dzDel(); }
+  });
+
+  /* buttons */
+  document.addEventListener("click",function(e){
+    var t=e.target, el;
+    if((el=t.closest("[data-add]"))){ if(dzNoClick) return; var ty=el.getAttribute("data-add"); dzAdd(ty,ty==="onramp"?0:Math.round(dzMaxX()*0.2)); return; }
+    if(t.closest("[data-dz=del]")){ dzDel(); return; }
+    if(t.closest("[data-dz=reset]")){ var rp=dzPiece(DZ.sel); if(rp){ var RT=DS_CAT[rp.type]; rp.len=RT.len||0; rp.lane=1; rp.lvl=0; rp.p={}; dzAll(); } return; }
+    if(t.id==="dz-clrpath"){ DZ.path=[]; dzAll(); return; }
+    if(t.id==="dz-draw"){ DZ.draw=!DZ.draw; dzCanvas(); return; }
+    if(t.id==="dz-undo"){ DZ.path.pop(); dzAll(); return; }
+    if(t.id==="dz-clr"){ if(t.getAttribute("data-arm")){ DZ=dsNew(); t.removeAttribute("data-arm"); t.textContent="Reset all and start new"; $("dz-ex").value="-1"; dzAll(); } else { t.setAttribute("data-arm","1"); t.textContent="Click again to erase everything"; clearTimeout(dzClr); dzClr=setTimeout(function(){ t.removeAttribute("data-arm"); t.textContent="Reset all and start new"; },3500); } return; }
+    if(t.id==="dz-png"){ var svg=$("dz-wrap").querySelector("svg"); if(!svg) return;
+      var url=URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(svg)],{type:"image/svg+xml;charset=utf-8"})), img=new Image();
+      img.onload=function(){ var k=2, c=document.createElement("canvas"); c.width=img.width*k; c.height=img.height*k; var x=c.getContext("2d"); x.scale(k,k); x.drawImage(img,0,0); URL.revokeObjectURL(url); c.toBlob(function(b){ if(b) download("my-scenario.png",b); }); };
+      img.onerror=function(){ URL.revokeObjectURL(url); }; img.src=url; return; }
+    if(t.id==="dz-ai") dzAsk();
+  });
+  document.addEventListener("change",function(e){
+    var t=e.target;
+    if(t.id==="dz-ex"){ var i=Number(t.value); DZ=i>=0?dsFromExample(i):dsNew(); dzAll(); return; }
+    if(t.getAttribute&&t.getAttribute("data-dzg")==="limit"){ DZ.limit=Number(t.value); dzResults(); dzCanvas(); return; }
+    if(t.getAttribute&&t.hasAttribute("data-dzi")){ var p=dzPiece(DZ.sel), k=t.getAttribute("data-dzi"); if(p&&(k==="lane"||k==="lvl")){ p[k]=Number(t.value); dzCanvas(); dzResults(); dzFBAll(); } }
+  });
+  document.addEventListener("input",function(e){
+    var t=e.target, g=t.getAttribute&&t.getAttribute("data-dzg");
+    if(g&&g!=="limit"){ DZ[g]=t.value; dzCanvas(); dzResults(); dzFBAll(); return; }
+    var p=dzPiece(DZ.sel), k=t.getAttribute&&t.getAttribute("data-dzi");
+    if(p&&(k==="x"||k==="len")){ var c=checkNum(t.value,{lo:k==="x"?0:5,hi:20000,zero:k==="x",eg:"100",unit:"m"}), er=$("dz-ie-"+k);
+      if(c.err||c.val===null){ er.textContent=c.err||"Enter a number."; er.hidden=false; } else { er.hidden=true; p[k]=c.val; dzCanvas(); dzResults(); dzFBAll(); } return; }
+    if(t.getAttribute&&t.hasAttribute("data-crit")){ DZ.crit[t.getAttribute("data-crit")]=t.value.trim(); $("dz-prompt").textContent=dsPrompt(dzModel()); var cs=document.querySelectorAll("[data-crit]"), nset=0; Array.prototype.forEach.call(cs,function(i){ if(i.value.trim()) nset++; }); return; }
+    var pk=t.getAttribute&&t.getAttribute("data-dzp");
+    if(p&&pk){ p.p[pk]=t.value; dzCanvas(); dzResults(); dzFBAll(); var m=dzModel(), er2=$("dz-ie-"+pk), msg=m.errs[p.id+":"+pk]; if(er2){ er2.textContent=msg||""; er2.hidden=!msg; } }
+  });
+
+  /* Gemini: the key lives only in the input box of this tab. It is never saved. */
+  function dzAsk(){
+    var key=$("dz-key").value.trim(), out=$("dz-ai-out"), btn=$("dz-ai");
+    out.hidden=false; out.className="out";
+    if(!key){ out.className="err"; out.textContent="Paste your Gemini API key first."; return; }
+    var model=($("dz-model").value.trim()||"gemini-2.5-flash");
+    btn.disabled=true; out.textContent="Asking Gemini…";
+    geminiDescribe(key,model,dsPrompt(dzModel())).then(function(t){ out.textContent=t; out.style.whiteSpace="pre-wrap"; },
+      function(er){ out.className="err"; out.textContent=er.message; }).then(function(){ btn.disabled=false; });
+  }
+  var dzRz; window.addEventListener("resize",function(){ clearTimeout(dzRz); dzRz=setTimeout(function(){ if(!$("tab-designer").hidden) dzCanvas(); },150); });
+  function dzInit(){
+    dzPalette(); $("dz-ex").innerHTML='<option value="-1">Start from a blank road</option>'+PRESETS.map(function(p,i){return '<option value="'+i+'">Load example: '+esc(p.n)+' ('+esc(p.title)+')</option>';}).join("");
+    DZ=dsNew(); dzAll();
+  }
+  window.__dz=function(){ return {DZ:DZ,v:dzView}; };
+
+  function renderRefs(){
+    function li(r){ return '<li id="ref-'+r.id+'"><span class="id">'+r.id+'</span><div>'+esc(r.t)+'<small>'+esc(r.d)+'</small></div></li>'; }
+    $("ref-ont").innerHTML=REFS_ONT.map(li).join(""); $("ref-cty").innerHTML=REFS_CTY.map(li).join("");
+    $("c2-g").innerHTML=GAP_REFS.map(function(g){return '<option value="'+g.id+'">'+esc(g.label)+'</option>';}).join("");
+  }
+
+  document.addEventListener("click",function(e){
+    var t=e.target, el;
+    if(t.matches("nav.tabs button")) showTab(t.getAttribute("data-tab"));
+    if((el=t.closest("[data-c]"))){ state.a=el.getAttribute("data-c"); if(state.b===state.a) state.b=""; renderCountries(); }
+    if((el=t.closest("a[data-ref]"))){ e.preventDefault(); showTab("refs"); var li=$("ref-"+el.getAttribute("data-ref")); Array.prototype.forEach.call(document.querySelectorAll("ol.refs li"),function(x){x.classList.remove("hl");}); if(li){ li.classList.add("hl"); li.scrollIntoView({block:"center"}); } return; }
+    builderClick(e);
+  });
+  document.addEventListener("change",function(e){
+    var t=e.target;
+    if(t.id==="cty-b"){ state.b=t.value; renderCountries(); }
+    if(t.id==="b-exit"){ D.exit=t.checked; D.dirty=true; renderAll(); }
+    if(t.hasAttribute&&t.hasAttribute("data-stype")){ var id=Number(t.getAttribute("data-stype")); D.mid.forEach(function(s){ if(s.id===id){ s.type=t.value; s.len=String(STEPS[t.value].len); } }); D.dirty=true; renderAll(); }
+  });
+  document.addEventListener("input",function(e){
+    var t=e.target;
+    if(t.hasAttribute&&t.hasAttribute("data-k")){ setField(t.getAttribute("data-k"),t.value); showFieldErr(t); renderLive(); }
+  });
+  var rz; window.addEventListener("resize",function(){ clearTimeout(rz); rz=setTimeout(function(){ if(!$("tab-builder").hidden) renderLive(); },150); });
+
+  /* ---- calculators ---- */
+  function validSpeed(v,errId){
+    if(isNaN(v)){ showErr(errId,"Enter the speed as a number, for example 110."); return false; }
+    if(v<=0){ showErr(errId,"Speed must be greater than 0 km/h."); return false; }
+    if(v>200){ showErr(errId,"Speed above 200 km/h is not realistic. Check the unit (km/h)."); return false; }
+    return true;
+  }
+  $("c1-m").addEventListener("change",function(){ $("c1-xl").textContent = this.value==="t2d" ? "Time gap (s)" : "Distance (m)"; });
+  $("c1-go").addEventListener("click",function(){
+    $("c1-out").hidden=true; var v=parseNum($("c1-v").value), x=parseNum($("c1-x").value), m=$("c1-m").value;
+    if(!validSpeed(v,"c1-err")) return;
+    if(isNaN(x)){ showErr("c1-err","Enter the "+(m==="t2d"?"time gap":"distance")+" as a number."); return; }
+    if(x<=0){ showErr("c1-err","The value must be greater than 0."); return; }
+    if(x>(m==="t2d"?600:20000)){ showErr("c1-err","That value is too large. Check the unit ("+(m==="t2d"?"seconds":"metres")+")."); return; }
+    showErr("c1-err","");
+    $("c1-out").innerHTML = m==="t2d" ? '<b>'+fmt(secToM(v,x),1)+' m</b><br>'+fmt(x,2)+' s at '+fmt(v,1)+' km/h ('+fmt(toMs(v),2)+' m/s)' : '<b>'+fmt(mToSec(v,x),2)+' s</b><br>'+fmt(x,1)+' m at '+fmt(v,1)+' km/h ('+fmt(toMs(v),2)+' m/s)';
+    $("c1-out").hidden=false;
+  });
+  $("c1-ex").addEventListener("click",function(){ $("c1-m").value="t2d"; $("c1-xl").textContent="Time gap (s)"; $("c1-v").value=110; $("c1-x").value=2; $("c1-go").click(); });
+  function g2(){ return GAP_REFS.filter(function(g){return g.id===$("c2-g").value;})[0]; }
+  $("c2-g").addEventListener("change",function(){ $("c2-u").textContent=g2().unit; });
+  $("c2-go").addEventListener("click",function(){
+    $("c2-out").hidden=true; var g=g2(), v=parseNum($("c2-v").value), x=parseNum($("c2-x").value);
+    if(!validSpeed(v,"c2-err")) return;
+    if(isNaN(x)){ showErr("c2-err","Enter the measured gap as a number in "+(g.unit==="s"?"seconds":"metres")+"."); return; }
+    if(x<=0){ showErr("c2-err","The measured gap must be greater than 0."); return; }
+    if(x>(g.unit==="s"?600:20000)){ showErr("c2-err","That value is too large. Check the unit ("+(g.unit==="s"?"seconds":"metres")+")."); return; }
+    showErr("c2-err","");
+    var refS=g.sec!==undefined?g.sec:mToSec(v,g.m), refM=g.m!==undefined?g.m:secToM(v,g.sec), mS=g.unit==="s"?x:mToSec(v,x), mM=g.unit==="m"?x:secToM(v,x), diff=mS-refS, pct=diff/refS*100;
+    $("c2-out").innerHTML='<b>'+(diff>=0?'+':'−')+fmt(Math.abs(diff),2)+' s ('+(pct>=0?'+':'−')+fmt(Math.abs(pct),0)+'%)</b> vs reference<br>Measured: '+fmt(mS,2)+' s = '+fmt(mM,1)+' m<br>Reference at '+fmt(v,1)+' km/h: '+fmt(refS,2)+' s = '+fmt(refM,1)+' m<div class="hint">A reference mean, not a pass limit.</div>';
+    $("c2-out").hidden=false;
+  });
+  $("c2-ex").addEventListener("click",function(){ $("c2-g").value="ml"; $("c2-u").textContent="s"; $("c2-v").value=110; $("c2-x").value=3; $("c2-go").click(); });
+  $("c3-t").addEventListener("change",function(){ $("c3-l").value=this.value; });
+  $("c3-go").addEventListener("click",function(){
+    $("c3-out").hidden=true; var a=parseNum($("c3-a").value), b=parseNum($("c3-b").value), L=parseNum($("c3-l").value);
+    if(isNaN(a)||isNaN(b)||isNaN(L)){ showErr("c3-err","Fill in both speeds and the length. Use numbers only."); return; }
+    if(a<0||b<0){ showErr("c3-err","Speeds cannot be negative."); return; }
+    if(a>200||b>200){ showErr("c3-err","Speed above 200 km/h is not realistic. Check the unit (km/h)."); return; }
+    if(L<=0){ showErr("c3-err","Length must be greater than 0 m."); return; }
+    if(L>5000){ showErr("c3-err","Length above 5,000 m is not realistic for a ramp lane. Check the unit (m)."); return; }
+    showErr("c3-err","");
+    var acc=avgAccel(a,b,L);
+    $("c3-out").innerHTML='<b>'+(acc>=0?'+':'−')+fmt(Math.abs(acc),2)+' m/s²</b> average<br>'+fmt(a,1)+' to '+fmt(b,1)+' km/h over '+fmt(L,0)+' m'+(acc>=0?' (speeding up)':' (slowing down)')+'<div class="hint">Assumes constant acceleration over the whole length.</div>';
+    $("c3-out").hidden=false;
+  });
+  $("c3-ex").addEventListener("click",function(){ $("c3-t").value="500"; $("c3-l").value=500; $("c3-a").value=80; $("c3-b").value=110; $("c3-go").click(); });
+
+  loadPreset(0); dzInit(); renderRefs(); renderCountries(); renderAll(); $("c1-v").value=D.limit; $("c2-v").value=D.limit; $("c3-l").value=$("c3-t").value;
+})(); }
+
+</script>
+</body>
+</html>
